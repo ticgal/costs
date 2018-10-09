@@ -42,46 +42,46 @@ class PluginCostsEntity extends CommonDBTM {
 
    public static $rightname = 'entity';
 
-   static function getTypeName($nb=0){
-      return __('Costs','Costs');
+   static function getTypeName($nb = 0) {
+      return __('Costs', 'Costs');
    }
 
-   function getTabNameForItem(CommonGLPI $item, $withtemplate=0){
+   function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
       switch ($item::getType()) {
          case Entity::getType():
             return self::getTypeName();
-			break;
-	  }
-	  return '';
+         break;
+      }
+      return '';
    }
 
-   static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0){
-   	  switch ($item::getType()) {
-   	     case Entity::getType():
-   	  		self::displayTabForEntity($item);
-   	  		break;
-   	  }
+   static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
+      switch ($item::getType()) {
+         case Entity::getType():
+            self::displayTabForEntity($item);
+            break;
+      }
    }
 
-   public function getFromDBByEntity($entities_id){
+   public function getFromDBByEntity($entities_id) {
       global $DB;
 
       $req=$DB->request(['FROM' => self::getTable(),'WHERE' => ['entities_id' => $entities_id]]);
       if (count($req)) {
          $this->fields=$req->next($req);
          return true;
-      }else{
-      	$DB->insert(self::getTable(),['entities_id'=>$entities_id]);
-      	$this->fields=['fixed_cost'=>0,'time_cost'=>0];
-      	return false;
+      } else {
+         $DB->insert(self::getTable(), ['entities_id'=>$entities_id]);
+         $this->fields=['fixed_cost'=>0,'time_cost'=>0,'cost_private'=>0];
+         return false;
       }
    }
 
-   static function displayTabForEntity(Entity $entity){
+   static function displayTabForEntity(Entity $entity) {
       global $DB, $CFG_GLPI;
 
       $ID = $entity->getField('id');
-      if(!$entity->can($ID,READ)){
+      if (!$entity->can($ID, READ)) {
          return false;
       }
       $cost_config=new self();
@@ -101,6 +101,11 @@ class PluginCostsEntity extends CommonDBTM {
       $out.="<input size='5' step='".PLUGIN_COSTS_NUMBER_STEP."' type='number' name='time_cost' value='".$cost_config->fields['time_cost']."'>";
       $out.="</td></tr>\n";
 
+      $out.="<tr class='tab_bg_1'>";
+      $out.="<td>".__('Private task')."</td><td>";
+      $out .= Dropdown::showYesNo("cost_private", $cost_config->fields['cost_private'], -1, ['display' => false]);
+      $out.="</td></tr>\n";
+
       $out.="<tr><td>";
       $out.="<input type='hidden' name='entities_id' value='$ID'>";
       $out.="</td></tr>\n";
@@ -116,12 +121,12 @@ class PluginCostsEntity extends CommonDBTM {
       return false;
    }
 
-   static function updateCost($entity_id,$fixed_cost,$time_cost){
+   static function updateCost($entity_id, $fixed_cost, $time_cost, $cost_private) {
       global $DB;
-      $DB->update(self::getTable(),['fixed_cost'=>$fixed_cost,'time_cost'=>$time_cost],['entities_id'=>$entity_id]);
+      $DB->update(self::getTable(), ['fixed_cost'=>$fixed_cost,'time_cost'=>$time_cost,'cost_private'=>$cost_private], ['entities_id'=>$entity_id]);
    }
 
-   static function install(Migration $migration){
+   static function install(Migration $migration) {
       global $DB;
 
       $table=self::getTable();
@@ -134,6 +139,7 @@ class PluginCostsEntity extends CommonDBTM {
          			entities_id int(11) NOT NULL DEFAULT '0',
          			fixed_cost float NOT NULL default '0',
          			time_cost float NOT NULL default '0',
+                  cost_private tinyint(1) NOT NULL DEFAULT '0',
          			PRIMARY KEY (id),
          			KEY entities_id (entities_id)
          		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
@@ -141,7 +147,7 @@ class PluginCostsEntity extends CommonDBTM {
       }
    }
 
-   static function unistall(Migration $migration){
+   static function unistall(Migration $migration) {
       $table=self::getTable();
       $migration->displayMessage("Uninstalling $table");
       $migration->dropTable($table);

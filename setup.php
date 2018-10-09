@@ -40,62 +40,62 @@ define("PLUGIN_COSTS_MAX_GLPI", "9.4");
 
 global $CFG_GLPI;
 if (!defined('PLUGIN_COSTS_NUMBER_STEP')) {
-   define("PLUGIN_COSTS_NUMBER_STEP", 1 / pow(10, $CFG_GLPI["decimal_number"]));
+   define("PLUGIN_COSTS_NUMBER_STEP", 1 / pow(1, $CFG_GLPI["decimal_number"]));
 }
 
 function plugin_version_costs() {
-	return array('name'       => 'Costs',
-		'version'        => PLUGIN_COSTS_VERSION,
-		'author'         => '<a href="https://tic.gal">TICgal</a>',
-		'homepage'       => 'https://tic.gal',
-		'license'        => 'GPLv3+',
-		'minGlpiVersion' => "9.3",
-		'requirements'   => [
-			'glpi'   => [
-				'min' => PLUGIN_COSTS_MIN_GLPI,
-				'max' => PLUGIN_COSTS_MAX_GLPI,
-			]
-		]);
+   return ['name'       => 'Costs',
+      'version'        => PLUGIN_COSTS_VERSION,
+      'author'         => '<a href="https://tic.gal">TICgal</a>',
+      'homepage'       => 'https://tic.gal',
+      'license'        => 'GPLv3+',
+      'minGlpiVersion' => "9.3",
+      'requirements'   => [
+         'glpi'   => [
+            'min' => PLUGIN_COSTS_MIN_GLPI,
+            'max' => PLUGIN_COSTS_MAX_GLPI,
+         ]
+      ]];
 }
 
 /**
  * Check plugin's prerequisites before installation
  */
 function plugin_costs_check_prerequisites() {
-	$version = preg_replace('/^((\d+\.?)+).*$/', '$1', GLPI_VERSION);
-	if (version_compare($version,'9.2','<')) {
-		$matchMinGlpiReq = version_compare($version, PLUGIN_COSTS_MIN_GLPI, '>=');
-		$matchMaxGlpiReq = version_compare($version, PLUGIN_COSTS_MAX_GLPI, '<');
-		if (!$matchMinGlpiReq || !$matchMaxGlpiReq) {
-			echo vsprintf(
-				'This plugin requires GLPI >= %1$s and < %2$s.',
-				[
-					PLUGIN_COSTS_MIN_GLPI,
-					PLUGIN_COSTS_MAX_GLPI,
-				]
-			);
-			return false;
-		}
-	}
+   $version = preg_replace('/^((\d+\.?)+).*$/', '$1', GLPI_VERSION);
+   if (version_compare($version, '9.2', '<')) {
+      $matchMinGlpiReq = version_compare($version, PLUGIN_COSTS_MIN_GLPI, '>=');
+      $matchMaxGlpiReq = version_compare($version, PLUGIN_COSTS_MAX_GLPI, '<');
+      if (!$matchMinGlpiReq || !$matchMaxGlpiReq) {
+         echo vsprintf(
+            'This plugin requires GLPI >= %1$s and < %2$s.',
+            [
+               PLUGIN_COSTS_MIN_GLPI,
+               PLUGIN_COSTS_MAX_GLPI,
+            ]
+         );
+         return false;
+      }
+   }
 
-	return true;
+   return true;
 }
 
 /**
  * Check plugin's config before activation
  */
-function plugin_costs_check_config($verbose=false) {
-	return true;
+function plugin_costs_check_config($verbose = false) {
+   return true;
 }
 
 function plugin_init_costs() {
-	global $PLUGIN_HOOKS;
+   global $PLUGIN_HOOKS;
 
-	if (Session::haveRight('entity', UPDATE)) {
+   if (Session::haveRight('entity', UPDATE)) {
        Plugin::registerClass('PluginCostsEntity', ['addtabon' => 'Entity']);
-    }
+   }
 
-	$PLUGIN_HOOKS['csrf_compliant']['costs'] = true;
-	$PLUGIN_HOOKS['pre_item_update']['costs'] = ['Ticket'  => ['PluginCostsTicket','generateCosts']];
-	
+   $PLUGIN_HOOKS['csrf_compliant']['costs'] = true;
+   $PLUGIN_HOOKS['pre_item_update']['costs'] = ['Ticket'  => ['PluginCostsTicket','generateCosts']];
+
 }

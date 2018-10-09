@@ -5,13 +5,12 @@
    <logo>https://raw.githubusercontent.com/ticgal/costs/multimedia/costs-40.png</logo>
    <description>
       <short>
-		<en>Google Drive plugin for GLPi</en>
-		<es>Módulo de Google Drive para GLPi</es>
+		<en>Automatic costs generation for GLPI</en>
+		<es>Generación automática de costes para GLPI</es>
       </short>
       <long>
-		<en>GDrive allows users of Google Drive adding files to glpi tickets effortlesly.</en>
-		<es>GDrive permite a los usuarios de Google Drive añadir ficheros fácilmente a sus peticiones.</es>
-      </long>
+		<en>Costs plugin helps your organization generating ticket costs automatically based on a per entity easy configuration.</en>
+		<es>El módulo Costs se alinea con tu organización generando los costes de las peticiones de manera automática, según la configuración de cada entidad.</long>
    </description>
    <homepage>https://tic.gal//</homepage>
    <download>https://github.com/ticgal/costs/releases</download>

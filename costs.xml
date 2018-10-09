@@ -2,7 +2,7 @@
    <name>Costs</name>
    <key>Costs</key>
    <state>stable</state> <!-- stable | unstable | beta | alpha -->
-   <logo>https://github.com/ticgal/costs/blob/multimedia/costs-40.png</logo>
+   <logo>https://raw.githubusercontent.com/ticgal/costs/multimedia/costs-40.png</logo>
    <description>
       <short>
 		<en>Google Drive plugin for GLPi</en>

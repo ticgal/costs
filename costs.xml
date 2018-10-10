@@ -29,20 +29,23 @@
       <lang>en_GB</lang>
       <lang>gl_ES</lang>
       <lang>es_ES</lang>
+      <lang>fr_FR</lang>
+      <lang>pt_PT</lang>
+      <lang>de_DE</lang>
    </langs>
    <license>AGPL v3+</license>
    <tags>
       	<en>
 		<tag>Costs</tag>
 		<tag>Ticket</tag>
-    <tag>Task</tag>
-    <tag>Entities</tag>
+    		<tag>Task</tag>
+  		 <tag>Entities</tag>
 	</en>
 	<es>
 		<tag>Costes</tag>
-		<tag>Ticket</tag>
-    <tag>Petición</tag>
-    <tag>Entidades</tag>
+		<tag>Peticiones</tag>
+    		<tag>Tareas</tag>
+    		<tag>Entidades</tag>
 	</es>
    </tags>
    <screenshots>

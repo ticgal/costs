@@ -9,11 +9,11 @@
 		<es>Generación automática de costes para GLPI</es>
       </short>
       <long>
-		<en>Costs plugin helps your organization generating ticket costs automatically based on a per entity easy configuration.</en>
+		<en>Costs plugin helps your organisation generating ticket costs automatically using a per entity configuration.</en>
 		<es>El módulo Costs se alinea con tu organización generando los costes de las peticiones de manera automática, según la configuración de cada entidad.</es>
       </long>
    </description>
-   <homepage>https://tic.gal//</homepage>
+   <homepage>https://tic.gal/</homepage>
    <download>https://github.com/ticgal/costs/releases</download>
    <issues>https://github.com/ticgal/costs/issues</issues>
    <readme>https://github.com/ticgal/costs/blob/master/README.md</readme>

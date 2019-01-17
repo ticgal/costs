@@ -36,7 +36,7 @@ define ('PLUGIN_COSTS_VERSION', '1.0.0');
 // Minimal GLPI version, inclusive
 define("PLUGIN_COSTS_MIN_GLPI", "9.3.0");
 // Maximum GLPI version, exclusive
-define("PLUGIN_COSTS_MAX_GLPI", "9.4");
+define("PLUGIN_COSTS_MAX_GLPI", "9.5");
 
 global $CFG_GLPI;
 if (!defined('PLUGIN_COSTS_NUMBER_STEP')) {

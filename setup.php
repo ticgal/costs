@@ -47,7 +47,7 @@ function plugin_version_costs() {
    return ['name'       => 'Costs',
       'version'        => PLUGIN_COSTS_VERSION,
       'author'         => '<a href="https://tic.gal">TICgal</a>',
-      'homepage'       => 'https://tic.gal',
+      'homepage'       => 'https://tic.gal/en/project/costs-control-plugin-glpi/',
       'license'        => 'GPLv3+',
       'minGlpiVersion' => "9.3",
       'requirements'   => [

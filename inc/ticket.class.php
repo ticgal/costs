@@ -59,10 +59,24 @@ class PluginCostsTicket extends CommonDBTM{
    static function generateCosts($item) {
       global $DB;
 
-      if ($item->input['status']==5) {
+      $addcost=true;
+		if (!array_key_exists('status', $item->input)) {
+			if($item->fields['status']==5){
+				$entities_id=$item->input['entities_id'];
+			}else{
+				$addcost=false;
+			}
+		}else{
+			if ($item->input['status']==5) {
+				$entities_id=$item->fields['entities_id'];
+			}else{
+				$addcost=false;
+			}
+		}
+
+      if ($addcost) {
 
          $ticket_id=$item->input['id'];
-         $entities_id=$item->fields['entities_id'];
 
          self::deleteOldCosts($ticket_id);
 

@@ -94,6 +94,10 @@ function plugin_init_costs() {
    if (Session::haveRight('entity', UPDATE)) {
        Plugin::registerClass('PluginCostsEntity', ['addtabon' => 'Entity']);
    }
+   if (Session::haveRightsOr("config", [READ, UPDATE])) {
+      Plugin::registerClass('PluginCostsConfig', ['addtabon' => 'Config']);
+      $PLUGIN_HOOKS['config_page']['costs'] = 'front/config.form.php';
+   }
 
    $PLUGIN_HOOKS['csrf_compliant']['costs'] = true;
    $PLUGIN_HOOKS['pre_item_update']['costs'] = ['Ticket'  => ['PluginCostsTicket','generateCosts']];

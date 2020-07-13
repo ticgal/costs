@@ -32,11 +32,11 @@
  @link      https://tic.gal
  @since     2018
  ---------------------------------------------------------------------- */
-define ('PLUGIN_COSTS_VERSION', '1.2.0');
+define ('PLUGIN_COSTS_VERSION', '1.3.0');
 // Minimal GLPI version, inclusive
-define("PLUGIN_COSTS_MIN_GLPI", "9.3.0");
+define("PLUGIN_COSTS_MIN_GLPI", "9.5");
 // Maximum GLPI version, exclusive
-define("PLUGIN_COSTS_MAX_GLPI", "9.5");
+define("PLUGIN_COSTS_MAX_GLPI", "9.6");
 
 global $CFG_GLPI;
 if (!defined('PLUGIN_COSTS_NUMBER_STEP')) {
@@ -49,43 +49,12 @@ function plugin_version_costs() {
       'author'         => '<a href="https://tic.gal">TICgal</a>',
       'homepage'       => 'https://tic.gal/en/project/costs-control-plugin-glpi/',
       'license'        => 'GPLv3+',
-      'minGlpiVersion' => "9.3",
       'requirements'   => [
          'glpi'   => [
             'min' => PLUGIN_COSTS_MIN_GLPI,
             'max' => PLUGIN_COSTS_MAX_GLPI,
          ]
       ]];
-}
-
-/**
- * Check plugin's prerequisites before installation
- */
-function plugin_costs_check_prerequisites() {
-   $version = preg_replace('/^((\d+\.?)+).*$/', '$1', GLPI_VERSION);
-   if (version_compare($version, '9.2', '<')) {
-      $matchMinGlpiReq = version_compare($version, PLUGIN_COSTS_MIN_GLPI, '>=');
-      $matchMaxGlpiReq = version_compare($version, PLUGIN_COSTS_MAX_GLPI, '<');
-      if (!$matchMinGlpiReq || !$matchMaxGlpiReq) {
-         echo vsprintf(
-            'This plugin requires GLPI >= %1$s and < %2$s.',
-            [
-               PLUGIN_COSTS_MIN_GLPI,
-               PLUGIN_COSTS_MAX_GLPI,
-            ]
-         );
-         return false;
-      }
-   }
-
-   return true;
-}
-
-/**
- * Check plugin's config before activation
- */
-function plugin_costs_check_config($verbose = false) {
-   return true;
 }
 
 function plugin_init_costs() {

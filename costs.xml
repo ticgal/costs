@@ -1,6 +1,6 @@
 <root>
    <name>Costs</name>
-   <key>Costs</key>
+   <key>costs</key>
    <state>stable</state> <!-- stable | unstable | beta | alpha -->
    <logo>https://raw.githubusercontent.com/ticgal/costs/multimedia/costs-40.png</logo>
    <description>

@@ -63,7 +63,7 @@ class PluginCostsEntity_Profile extends CommonDBRelation {
 			echo "<td>".__('Profile')."</td>";
 			echo "<td>";
 			$used_profiles=self::getUsedProfiles($instID,true);
-			Profile::dropdown(['name'=>'profiles_id','rand'=>$rand,'used'=>$used_profiles]);
+			Profile::dropdown(['name'=>'profiles_id','rand'=>$rand,'used'=>$used_profiles,'condition'=>['interface'=>'central']]);
 			echo "</td>";
 			echo "<td>".__('Fixed cost')."</td>";
 			echo "<td>";

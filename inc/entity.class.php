@@ -123,6 +123,8 @@ class PluginCostsEntity extends CommonDBTM {
       $out.= Html::closeForm(false);
 
       echo $out;
+      
+      PluginCostsEntity_Profile::showForEntity($entity);
 
       return false;
    }

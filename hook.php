@@ -70,3 +70,9 @@ function plugin_costs_uninstall() {
    }
    return true;
 }
+
+function plugin_costs_getAddSearchOptions($itemtype){
+   if ($itemtype==Ticket::getType()) {
+      return PluginCostsTicket::rawSearchOptionsToAdd();
+   }
+}

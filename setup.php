@@ -32,7 +32,7 @@
  @link      https://tic.gal
  @since     2018
  ---------------------------------------------------------------------- */
-define ('PLUGIN_COSTS_VERSION', '1.3.0');
+define ('PLUGIN_COSTS_VERSION', '1.4.0');
 // Minimal GLPI version, inclusive
 define("PLUGIN_COSTS_MIN_GLPI", "9.5");
 // Maximum GLPI version, exclusive
@@ -69,6 +69,17 @@ function plugin_init_costs() {
    }
 
    $PLUGIN_HOOKS['csrf_compliant']['costs'] = true;
-   $PLUGIN_HOOKS['pre_item_update']['costs'] = ['Ticket'  => ['PluginCostsTicket','generateCosts']];
+   $PLUGIN_HOOKS['pre_item_update']['costs'] = [
+      'Ticket'=>['PluginCostsTicket','ticketUpdate'],
+      'TicketTask'=>['PluginCostsTask','preTaskUpdate']
+   ];
+   $PLUGIN_HOOKS['post_item_form']['costs']=['PluginCostsTicket','postItemForm'];
+   $PLUGIN_HOOKS['item_add']['costs']=[
+      'Ticket'=>['PluginCostsTicket','ticketAdd'],
+      'TicketTask'=>['PluginCostsTask','taskAdd']
+   ];
+   $PLUGIN_HOOKS['item_purge']['costs']=[
+      'TicketTask'=>['PluginCostsTask','taskPurge']
+   ];
 
 }

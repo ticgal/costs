@@ -71,8 +71,8 @@ class PluginCostsEntity extends CommonDBTM {
          $this->fields=$req->next($req);
          return true;
       } else {
-         $DB->insert(self::getTable(), ['entities_id'=>$entities_id]);
-         $this->fields=['fixed_cost'=>0,'time_cost'=>0,'cost_private'=>0];
+         $id=$this->add(['entities_id'=>$entities_id]);
+         $this->getFromDB($id);
          return false;
       }
    }
@@ -106,12 +106,18 @@ class PluginCostsEntity extends CommonDBTM {
       $out .= Dropdown::showYesNo("cost_private", $cost_config->fields['cost_private'], -1, ['display' => false]);
       $out.="</td></tr>\n";
 
+      $out.="<tr class='tab_bg_1'>";
+      $out.="<td>".__('Auto billable ticket')."</td><td>";
+      $out .= Dropdown::showYesNo("auto_cost", $cost_config->fields['auto_cost'], -1, ['display' => false]);
+      $out.="</td></tr>\n";
+
       $out.="<tr><td>";
       $out.="<input type='hidden' name='entities_id' value='$ID'>";
       $out.="</td></tr>\n";
 
       $out.= "<tr><td class='tab_bg_2 right'>";
       $out.= "<input type='submit' name='update' value='"._sx('button', 'Update')."' class='submit'>";
+      $out.= "<input type='hidden' name='id' value='".$cost_config->fields['id']."'>";
       $out.= "</td></tr>";
       $out.= "</table>";
       $out.= Html::closeForm(false);
@@ -119,11 +125,6 @@ class PluginCostsEntity extends CommonDBTM {
       echo $out;
 
       return false;
-   }
-
-   static function updateCost($entity_id, $fixed_cost, $time_cost, $cost_private) {
-      global $DB;
-      $DB->update(self::getTable(), ['fixed_cost'=>$fixed_cost,'time_cost'=>$time_cost,'cost_private'=>$cost_private], ['entities_id'=>$entity_id]);
    }
 
    static function install(Migration $migration) {
@@ -140,11 +141,19 @@ class PluginCostsEntity extends CommonDBTM {
          			fixed_cost float NOT NULL default '0',
          			time_cost float NOT NULL default '0',
                   cost_private tinyint(1) NOT NULL DEFAULT '0',
+                  auto_cost tinyint(1) NOT NULL DEFAULT '0',
          			PRIMARY KEY (id),
          			KEY entities_id (entities_id)
          		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
          $DB->query($query) or die($DB->error());
+      }else{
+         if (!$DB->fieldExists($table, 'auto_cost')) {
+            $migration->displayMessage("Upgrading $table");
+            $migration->addField($table, 'auto_cost', 'boolean');
+            $migration->migrationOneTable($table);
+         }
       }
+      $migration->executeMigration();
    }
 
    static function unistall(Migration $migration) {

@@ -18,6 +18,10 @@ class PluginCostsTask extends CommonDBTM {
             if ($task->fields['state']==Planning::DONE) {
                $cost_config=new PluginCostsEntity();
                $cost_config->getFromDBByEntity($ticket->fields['entities_id']);
+               if ($cost_config->fields['inheritance']) {
+                  $parent_id=PluginCostsEntity::getConfigID($ticket->fields['entities_id']);
+                  $cost_config->getFromDB($parent_id);
+               }
 
                if ($cost_config->fields['time_cost']>0) {
                   if (!$task->fields['is_private'] || $cost_config->fields['cost_private']) {
@@ -30,7 +34,7 @@ class PluginCostsTask extends CommonDBTM {
                      $entity_profile=new PluginCostsEntity_Profile();
                      $user=new User();
                      $user->getFromDB($task->fields['users_id_tech']);
-                     if ($entity_profile->getFromDBByCrit(['entities_id'=>$ticket->fields['entities_id'],'profiles_id'=>$user->fields['profiles_id']])) {
+                     if ($entity_profile->getFromDBByCrit(['entities_id'=>$cost_config->fields['entities_id'],'profiles_id'=>$user->fields['profiles_id']])) {
                         $cost_time=$entity_profile->fields['time_cost'];
                         $cost_fixed=$entity_profile->fields['fixed_cost'];
                      }else{
@@ -70,6 +74,10 @@ class PluginCostsTask extends CommonDBTM {
          if ($task->input['state']==Planning::DONE) {
             $cost_config=new PluginCostsEntity();
             $cost_config->getFromDBByEntity($ticket->fields['entities_id']);
+            if ($cost_config->fields['inheritance']) {
+               $parent_id=PluginCostsEntity::getConfigID($ticket->fields['entities_id']);
+               $cost_config->getFromDB($parent_id);
+            }
 
             if ($cost_config->fields['time_cost']>0) {
                if (!$task->input['is_private'] || $cost_config->fields['cost_private']) {
@@ -111,7 +119,7 @@ class PluginCostsTask extends CommonDBTM {
                      $entity_profile=new PluginCostsEntity_Profile();
                      $user=new User();
                      $user->getFromDB($task->fields['users_id_tech']);
-                     if ($entity_profile->getFromDBByCrit(['entities_id'=>$ticket->fields['entities_id'],'profiles_id'=>$user->fields['profiles_id']])) {
+                     if ($entity_profile->getFromDBByCrit(['entities_id'=>$cost_config->fields['entities_id'],'profiles_id'=>$user->fields['profiles_id']])) {
                         $cost_time=$entity_profile->fields['time_cost'];
                         $cost_fixed=$entity_profile->fields['fixed_cost'];
                      }else{

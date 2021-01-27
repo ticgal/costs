@@ -32,7 +32,7 @@
  @link      https://tic.gal
  @since     2018
  ---------------------------------------------------------------------- */
-define ('PLUGIN_COSTS_VERSION', '1.4.2');
+define ('PLUGIN_COSTS_VERSION', '2.0.0');
 // Minimal GLPI version, inclusive
 define("PLUGIN_COSTS_MIN_GLPI", "9.5");
 // Maximum GLPI version, exclusive

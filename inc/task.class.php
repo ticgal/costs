@@ -209,12 +209,14 @@ class PluginCostsTask extends CommonDBTM {
          $query = "CREATE TABLE IF NOT EXISTS `$table` (
                      `id` int(11) NOT NULL auto_increment,
                      `tasks_id` int(11) NOT NULL,
-                     `costs_id` tinyint(1) NOT NULL DEFAULT '0',
+                     `costs_id` int(11) NOT NULL DEFAULT '0',
                      PRIMARY KEY (`id`),
                      KEY `tasks_id` (`tasks_id`),
                      KEY `costs_id` (`costs_id`)
                   ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
          $DB->query($query) or die($DB->error());
+      } else {
+         $migration->changeField($table,'costs_id','costs_id','int');
       }
 
       $migration->executeMigration();

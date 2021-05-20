@@ -71,7 +71,11 @@ class PluginCostsEntity extends CommonDBTM {
          $this->fields=$req->next($req);
          return true;
       } else {
-         $id=$this->add(['entities_id'=>$entities_id]);
+         if ($entities_id>0) {
+            $id=$this->add(['entities_id'=>$entities_id,'inheritance'=>1]);
+         }else{
+            $id=$this->add(['entities_id'=>$entities_id]);
+         }
          $this->getFromDB($id);
          return false;
       }
@@ -86,30 +90,64 @@ class PluginCostsEntity extends CommonDBTM {
       }
       $cost_config=new self();
       $cost_config->getFromDBByEntity($ID);
+      $inheritance=$cost_config->fields['inheritance'];
+      $config_id=$cost_config->fields['id'];
 
       $rand = mt_rand();
       $out= "<form name='costentity_form$rand' id='costentity_form$rand' method='post' action='";
       $out.= self::getFormUrl()."'>";
       $out.= "<table class='tab_cadre_fixe'>";
-      $out.="<tr class='tab_bg_1'>";
-      $out.="<td>".__('Fixed cost')."</td><td>";
-      $out.="<input size='5' step='".PLUGIN_COSTS_NUMBER_STEP."' type='number' name='fixed_cost' value='".$cost_config->fields['fixed_cost']."'>";
-      $out.="</td></tr>\n";
 
-      $out.="<tr class='tab_bg_1'>";
-      $out.="<td>".__('Time cost')."</td><td>";
-      $out.="<input size='5' step='".PLUGIN_COSTS_NUMBER_STEP."' type='number' name='time_cost' value='".$cost_config->fields['time_cost']."'>";
-      $out.="</td></tr>\n";
+      if ($ID>0) {
+         $out.="<tr class='tab_bg_1'>";
+         $out.="<td style='width: 400px;'>".__('Inheritance of the parent entity')."</td><td>";
+         $out.=Dropdown::showYesNo("inheritance", $cost_config->fields['inheritance'], -1, ['display' => false,'use_checkbox' => true]);
+         $out.="</td></tr>\n";
+      }
 
-      $out.="<tr class='tab_bg_1'>";
-      $out.="<td>".__('Private task')."</td><td>";
-      $out .= Dropdown::showYesNo("cost_private", $cost_config->fields['cost_private'], -1, ['display' => false]);
-      $out.="</td></tr>\n";
+      if ($inheritance==1) {
+         $parent_id=self::getConfigID($entity->fields['entities_id']);
+         $cost_config->getFromDB($parent_id);
+         $out.="<tr class='tab_bg_1'>";
+         $out.="<td>".__('Fixed cost')."</td>";
+         $out.="<td><div style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;display: table;'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>".$cost_config->fields['fixed_cost']."</div>";
+         $out.="</td></tr>\n";
 
-      $out.="<tr class='tab_bg_1'>";
-      $out.="<td>".__('Auto billable ticket')."</td><td>";
-      $out .= Dropdown::showYesNo("auto_cost", $cost_config->fields['auto_cost'], -1, ['display' => false]);
-      $out.="</td></tr>\n";
+         $out.="<tr class='tab_bg_1'>";
+         $out.="<td>".__('Time cost')."</td><td>";
+         $out.="<div style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;display: table;'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>".$cost_config->fields['time_cost']."</div>";
+         $out.="</td></tr>\n";
+
+         $out.="<tr class='tab_bg_1'>";
+         $out.="<td>".__('Private task')."</td><td>";
+         $out.="<div style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;display: table;'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>".Dropdown::getYesNo($cost_config->fields['cost_private'])."</div>";
+         $out.="</td></tr>\n";
+
+         $out.="<tr class='tab_bg_1'>";
+         $out.="<td>".__('Auto billable ticket')."</td><td>";
+         $out.="<div style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;display: table;'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>".Dropdown::getYesNo($cost_config->fields['auto_cost'])."</div>";
+         $out.="</td></tr>\n";
+      }else{
+         $out.="<tr class='tab_bg_1'>";
+         $out.="<td>".__('Fixed cost')."</td><td>";
+         $out.="<input size='5' step='".PLUGIN_COSTS_NUMBER_STEP."' type='number' name='fixed_cost' value='".$cost_config->fields['fixed_cost']."'>";
+         $out.="</td></tr>\n";
+
+         $out.="<tr class='tab_bg_1'>";
+         $out.="<td>".__('Time cost')."</td><td>";
+         $out.="<input size='5' step='".PLUGIN_COSTS_NUMBER_STEP."' type='number' name='time_cost' value='".$cost_config->fields['time_cost']."'>";
+         $out.="</td></tr>\n";
+
+         $out.="<tr class='tab_bg_1'>";
+         $out.="<td>".__('Private task')."</td><td>";
+         $out .= Dropdown::showYesNo("cost_private", $cost_config->fields['cost_private'], -1, ['display' => false]);
+         $out.="</td></tr>\n";
+
+         $out.="<tr class='tab_bg_1'>";
+         $out.="<td>".__('Auto billable ticket')."</td><td>";
+         $out .= Dropdown::showYesNo("auto_cost", $cost_config->fields['auto_cost'], -1, ['display' => false]);
+         $out.="</td></tr>\n";
+      }
 
       $out.="<tr><td>";
       $out.="<input type='hidden' name='entities_id' value='$ID'>";
@@ -117,16 +155,34 @@ class PluginCostsEntity extends CommonDBTM {
 
       $out.= "<tr><td class='tab_bg_2 right'>";
       $out.= "<input type='submit' name='update' value='"._sx('button', 'Update')."' class='submit'>";
-      $out.= "<input type='hidden' name='id' value='".$cost_config->fields['id']."'>";
+      $out.= "<input type='hidden' name='id' value='".$config_id."'>";
       $out.= "</td></tr>";
       $out.= "</table>";
       $out.= Html::closeForm(false);
 
       echo $out;
       
-      PluginCostsEntity_Profile::showForEntity($entity);
+      if ($inheritance!=1) {
+         PluginCostsEntity_Profile::showForEntity($entity);
+      }else{
+         PluginCostsEntity_Profile::showForParent($cost_config->fields['entities_id']);
+      }
 
       return false;
+   }
+
+   static function getConfigID($entities_id){
+
+      $config=new self();
+      $config->getFromDBByEntity($entities_id);
+      if ($config->fields['inheritance']) {
+         $entity=new Entity();
+         if ($entity->getFromDB($entities_id)) {
+            return self::getConfigID($entity->fields['entities_id']);
+         }
+      }else{
+         return $config->fields['id'];
+      }
    }
 
    static function install(Migration $migration) {
@@ -144,6 +200,7 @@ class PluginCostsEntity extends CommonDBTM {
          			time_cost float NOT NULL default '0',
                   cost_private tinyint(1) NOT NULL DEFAULT '0',
                   auto_cost tinyint(1) NOT NULL DEFAULT '0',
+                  inheritance tinyint(1) NOT NULL DEFAULT '0',
          			PRIMARY KEY (id),
          			KEY entities_id (entities_id)
          		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
@@ -152,6 +209,11 @@ class PluginCostsEntity extends CommonDBTM {
          if (!$DB->fieldExists($table, 'auto_cost')) {
             $migration->displayMessage("Upgrading $table");
             $migration->addField($table, 'auto_cost', 'boolean');
+            $migration->migrationOneTable($table);
+         }
+         if (!$DB->fieldExists($table, 'inheritance')) {
+            $migration->displayMessage("Upgrading $table");
+            $migration->addField($table, 'inheritance', 'boolean');
             $migration->migrationOneTable($table);
          }
       }

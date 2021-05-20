@@ -133,6 +133,35 @@ class PluginCostsEntity_Profile extends CommonDBRelation {
 
 	}
 
+	static function showForParent($entities_id){
+
+		echo "<div class='spaced'>";
+		echo "<table class='tab_cadre_fixehov'>";
+		$header_begin  = "<tr>";
+		$header_top    = '';
+		$header_bottom = '';
+		$header_end    = '';
+		$header_end .= "<th>".__('Profile')."</th>";
+		$header_end .= "<th>".__('Fixed cost')."</th>";
+		$header_end .= "<th>".__('Time cost')."</th>";
+		echo "<tr>";
+		echo $header_begin.$header_top.$header_end;
+
+		$list=self::getUsedProfiles($entities_id);
+
+		foreach ($list as $data) {
+			echo "<tr class='tab_bg_1' style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;'>";
+			echo "<td class='center'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>";
+			echo Dropdown::getDropdownName("glpi_profiles", $data['profiles_id'])."</td>";
+			echo "<td class='center'>".$data["fixed_cost"]."</td>";
+			echo "<td class='center'>". $data["time_cost"]."</td>";
+			echo "</tr>";
+		}
+		echo $header_begin.$header_bottom.$header_end;
+		echo "</table>";
+		echo "</div>";
+	}
+
 	static function getUsedProfiles($entities_id,$only_id=false){
 		global $DB;
 

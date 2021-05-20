@@ -94,6 +94,10 @@ class PluginCostsTicket extends CommonDBTM{
          $ticket->getFromDB($ticket_id);
          $cost_config=new PluginCostsEntity();
          $cost_config->getFromDBByEntity($ticket->fields['entities_id']);
+         if ($cost_config->fields['inheritance']) {
+            $parent_id=PluginCostsEntity::getConfigID($ticket->fields['entities_id']);
+            $cost_config->getFromDB($parent_id);
+         }
          $DB->insert(self::getTable(), ['tickets_id'=>$ticket_id,'billable'=>$cost_config->fields['auto_cost']]);
          $this->fields=['billable'=>$cost_config->fields['auto_cost']];
          return false;
@@ -114,6 +118,10 @@ class PluginCostsTicket extends CommonDBTM{
                if ($ticket_id==0) {
                   $cost_config=new PluginCostsEntity();
                   $cost_config->getFromDBByEntity($item->input['entities_id']);
+                  if ($cost_config->fields['inheritance']) {
+                     $parent_id=PluginCostsEntity::getConfigID($item->fields['entities_id']);
+                     $cost_config->getFromDB($parent_id);
+                  }
                   $billable=$cost_config->fields['auto_cost'];
                }else{
                   $cost_ticket=new self();
@@ -135,6 +143,10 @@ class PluginCostsTicket extends CommonDBTM{
       }else{
          $cost_config=new PluginCostsEntity();
          $cost_config->getFromDBByEntity($ticket->input['entities_id']);
+         if ($cost_config->fields['inheritance']) {
+            $parent_id=PluginCostsEntity::getConfigID($ticket->input['entities_id']);
+            $cost_config->getFromDB($parent_id);
+         }
          $billable=$cost_config->fields['auto_cost'];
       }
       $cost_ticket=new self();

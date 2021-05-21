@@ -10,10 +10,13 @@ The cost plugin for GLPI
 - Auto billable inheritance
 
 ## 2.2.0 (internal)
+### Features
+- Multiple cost check
+### Bugfixes
+- Check if isset input.
 
 ## 2.1.0 (internal)
 ### Features
-- Check if isset input.
 - Check time cost.
 - Add report.
 

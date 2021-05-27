@@ -1,5 +1,9 @@
 # Costs
 The cost plugin for GLPI
+## 2.2.3
+### Bugfixes
+- Don't show Billable to self-service users.
+
 ## 2.2.2
 ### Bugfixes
 - Filter out deleted tasks costs.

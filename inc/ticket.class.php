@@ -107,30 +107,32 @@ class PluginCostsTicket extends CommonDBTM{
    static function postItemForm($params=[]){
       global $DB;
 
-      $item=$params['item'];
-      if (!is_array($item)) {
-         if ($item->getType()==Ticket::getType()) {
-            if ($item->canUpdate()) {
-               $ticket_id=$item->getID();
-               echo "<tr class='tab_bg_1'>";
-               echo "<th>".__('Billable','cost')."</th>";
-               echo "<td>";
-               if ($ticket_id==0) {
-                  $cost_config=new PluginCostsEntity();
-                  $cost_config->getFromDBByEntity($item->input['entities_id']);
-                  if ($cost_config->fields['inheritance']) {
-                     $parent_id=PluginCostsEntity::getConfigID($item->fields['entities_id']);
-                     $cost_config->getFromDB($parent_id);
+      if (Session::getCurrentInterface() != "helpdesk") {
+         $item=$params['item'];
+         if (!is_array($item)) {
+            if ($item->getType()==Ticket::getType()) {
+               if ($item->canUpdate()) {
+                  $ticket_id=$item->getID();
+                  echo "<tr class='tab_bg_1'>";
+                  echo "<th>".__('Billable','cost')."</th>";
+                  echo "<td>";
+                  if ($ticket_id==0) {
+                     $cost_config=new PluginCostsEntity();
+                     $cost_config->getFromDBByEntity($item->input['entities_id']);
+                     if ($cost_config->fields['inheritance']) {
+                        $parent_id=PluginCostsEntity::getConfigID($item->fields['entities_id']);
+                        $cost_config->getFromDB($parent_id);
+                     }
+                     $billable=$cost_config->fields['auto_cost'];
+                  }else{
+                     $cost_ticket=new self();
+                     $cost_ticket->getFromDBByTicket($ticket_id);
+                     $billable=$cost_ticket->fields['billable'];
                   }
-                  $billable=$cost_config->fields['auto_cost'];
-               }else{
-                  $cost_ticket=new self();
-                  $cost_ticket->getFromDBByTicket($ticket_id);
-                  $billable=$cost_ticket->fields['billable'];
+                  Dropdown::showYesNo('cost_billable',$billable);
+                  echo "</td>";
+                  echo "</tr>";
                }
-               Dropdown::showYesNo('cost_billable',$billable);
-               echo "</td>";
-               echo "</tr>";
             }
          }
       }

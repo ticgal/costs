@@ -32,11 +32,11 @@
  @link      https://tic.gal
  @since     2018
  ---------------------------------------------------------------------- */
-define ('PLUGIN_COSTS_VERSION', '2.2.3');
+define ('PLUGIN_COSTS_VERSION', '3.0.0');
 // Minimal GLPI version, inclusive
-define("PLUGIN_COSTS_MIN_GLPI", "9.5");
+define("PLUGIN_COSTS_MIN_GLPI", "10.0");
 // Maximum GLPI version, exclusive
-define("PLUGIN_COSTS_MAX_GLPI", "9.6");
+define("PLUGIN_COSTS_MAX_GLPI", "11.0");
 
 global $CFG_GLPI;
 if (!defined('PLUGIN_COSTS_NUMBER_STEP')) {

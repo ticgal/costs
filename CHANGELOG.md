@@ -1,5 +1,10 @@
 # Costs
 The cost plugin for GLPI
+
+## 3.0.0 - 2022-07-07
+### Features
+- GLPI 10 compatibility #10398
+
 ## 2.2.3
 ### Bugfixes
 - Don't show Billable to self-service users.

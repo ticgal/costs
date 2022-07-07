@@ -188,22 +188,26 @@ class PluginCostsEntity extends CommonDBTM {
    static function install(Migration $migration) {
       global $DB;
 
+      $default_charset = DBConnection::getDefaultCharset();
+      $default_collation = DBConnection::getDefaultCollation();
+      $default_key_sign = DBConnection::getDefaultPrimaryKeySignOption();
+
       $table=self::getTable();
 
       if (!$DB->tableExists($table)) {
          $migration->displayMessage("Installing $table");
 
          $query="CREATE TABLE IF NOT EXISTS $table (
-         			id int(11) NOT NULL auto_increment,
-         			entities_id int(11) NOT NULL DEFAULT '0',
+         			id int {$default_key_sign} NOT NULL auto_increment,
+         			entities_id int {$default_key_sign} NOT NULL DEFAULT '0',
          			fixed_cost float NOT NULL default '0',
          			time_cost float NOT NULL default '0',
-                  cost_private tinyint(1) NOT NULL DEFAULT '0',
-                  auto_cost tinyint(1) NOT NULL DEFAULT '0',
-                  inheritance tinyint(1) NOT NULL DEFAULT '0',
+                  cost_private tinyint NOT NULL DEFAULT '0',
+                  auto_cost tinyint NOT NULL DEFAULT '0',
+                  inheritance tinyint NOT NULL DEFAULT '0',
          			PRIMARY KEY (id),
          			KEY entities_id (entities_id)
-         		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+         		) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
          $DB->query($query) or die($DB->error());
       }else{
          if (!$DB->fieldExists($table, 'auto_cost')) {

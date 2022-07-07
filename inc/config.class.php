@@ -115,6 +115,10 @@ class PluginCostsConfig extends CommonDBTM {
 	public static function install(Migration $migration) {
 		global $DB;
 
+		$default_charset = DBConnection::getDefaultCharset();
+		$default_collation = DBConnection::getDefaultCollation();
+		$default_key_sign = DBConnection::getDefaultPrimaryKeySignOption();
+
 		$table  = self::getTable();
 		$config = new self();
 
@@ -123,10 +127,10 @@ class PluginCostsConfig extends CommonDBTM {
 			//Install
 
 			$query = "CREATE TABLE `$table` (
-				`id` int(11) NOT NULL auto_increment,
-				`taskdescription` tinyint(1) NOT NULL default '0',
+				`id` int {$default_key_sign} NOT NULL auto_increment,
+				`taskdescription` tinyint NOT NULL default '0',
 				PRIMARY KEY  (`id`)
-			) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+			) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
 
 			$DB->query($query) or die ($DB->error());
 			$config->add([

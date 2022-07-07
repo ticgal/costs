@@ -95,7 +95,7 @@ class PluginCostsTicket extends CommonDBTM{
          $ticket=new Ticket();
          $ticket->getFromDB($ticket_id);
          $cost_config=new PluginCostsEntity();
-         $cost_config->getFromDBByCrit(["entities_id"=>$ticket->fields['entities_id']]);
+         $cost_config->getFromDBByEntity($ticket->fields['entities_id']);
          if ($cost_config->fields['inheritance']) {
             $parent_id=PluginCostsEntity::getConfigID($ticket->fields['entities_id']);
             $cost_config->getFromDB($parent_id);
@@ -120,7 +120,7 @@ class PluginCostsTicket extends CommonDBTM{
                   echo "<td>";
                   if ($ticket_id==0) {
                      $cost_config=new PluginCostsEntity();
-                     $cost_config->getFromDBByEntity($item->input['entities_id']);
+                     $cost_config->getFromDBByCrit(["entities_id"=>$item->input['entities_id']]);
                      if ($cost_config->fields['inheritance']) {
                         $parent_id=PluginCostsEntity::getConfigID($item->fields['entities_id']);
                         $cost_config->getFromDB($parent_id);

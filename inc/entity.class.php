@@ -68,7 +68,9 @@ class PluginCostsEntity extends CommonDBTM {
 
       $req=$DB->request(['FROM' => self::getTable(),'WHERE' => ['entities_id' => $entities_id]]);
       if (count($req)) {
-         $this->fields=$req->next($req);
+         foreach ($req as $result){
+            $this->fields=$result;
+         }
          return true;
       } else {
          if ($entities_id>0) {
@@ -89,7 +91,7 @@ class PluginCostsEntity extends CommonDBTM {
          return false;
       }
       $cost_config=new self();
-      $cost_config->getFromDBByCrit(["entities_id"=>$ID]);
+      $cost_config->getFromDBByEntity($ID);
       $inheritance=$cost_config->fields['inheritance'];
       $config_id=$cost_config->fields['id'];
 

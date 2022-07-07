@@ -87,13 +87,15 @@ class PluginCostsTicket extends CommonDBTM{
 
       $req=$DB->request(['FROM' => self::getTable(),'WHERE' => ['tickets_id' => $ticket_id]]);
       if (count($req)) {
-         $this->fields=$req->next($req);
+         foreach ($req as $result){
+            $this->fields=$result;
+         }
          return true;
       } else {
          $ticket=new Ticket();
          $ticket->getFromDB($ticket_id);
          $cost_config=new PluginCostsEntity();
-         $cost_config->getFromDBByEntity($ticket->fields['entities_id']);
+         $cost_config->getFromDBByCrit(["entities_id"=>$ticket->fields['entities_id']]);
          if ($cost_config->fields['inheritance']) {
             $parent_id=PluginCostsEntity::getConfigID($ticket->fields['entities_id']);
             $cost_config->getFromDB($parent_id);

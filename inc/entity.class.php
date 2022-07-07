@@ -89,7 +89,7 @@ class PluginCostsEntity extends CommonDBTM {
          return false;
       }
       $cost_config=new self();
-      $cost_config->getFromDBByEntity($ID);
+      $cost_config->getFromDBByCrit(["entities_id"=>$ID]);
       $inheritance=$cost_config->fields['inheritance'];
       $config_id=$cost_config->fields['id'];
 

@@ -129,6 +129,14 @@ class PluginCostsEntity extends CommonDBTM {
          $out.="<td>".__('Auto billable ticket')."</td><td>";
          $out.="<div style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;display: table;'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>".Dropdown::getYesNo($cost_config->fields['auto_cost'])."</div>";
          $out.="</td></tr>\n";
+
+         $out.="<tr class='tab_bg_1'>";
+         $out.="<td>".__('Default Budget','costs')."</td><td>";
+         $budget= new Budget();
+         $budget->getFromDB($cost_config->fields["budget_id"]);
+         $out.="<div style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;display: table;'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>".$budget->fields["name"]."</div>";
+         $out.="</td></tr>\n";
+
       }else{
          $out.="<tr class='tab_bg_1'>";
          $out.="<td>".__('Fixed cost')."</td><td>";
@@ -149,6 +157,14 @@ class PluginCostsEntity extends CommonDBTM {
          $out.="<td>".__('Auto billable ticket')."</td><td>";
          $out .= Dropdown::showYesNo("auto_cost", $cost_config->fields['auto_cost'], -1, ['display' => false]);
          $out.="</td></tr>\n";
+
+         $out.="<div class='input-group mb-1'>";
+         $out.="<tr class='tab_bg_1'>";
+         $out.="<td>".__('Default Budget','costs')."</td><td>";
+         $out.= Budget::dropdown(["value"=>$cost_config->fields["budget_id"],"name"=>"budget_id",'display' => false]);
+
+         $out.="</td></tr>\n";
+         $out.="</div>";
       }
 
       $out.="<tr><td>";
@@ -207,6 +223,7 @@ class PluginCostsEntity extends CommonDBTM {
                   cost_private tinyint NOT NULL DEFAULT '0',
                   auto_cost tinyint NOT NULL DEFAULT '0',
                   inheritance tinyint NOT NULL DEFAULT '0',
+                  budget_id int {$default_key_sign} NOT NULL DEFAULT '0', 
          			PRIMARY KEY (id),
          			KEY entities_id (entities_id)
          		) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";

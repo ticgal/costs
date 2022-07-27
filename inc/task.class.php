@@ -53,7 +53,6 @@ class PluginCostsTask extends CommonDBTM {
                         'actiontime'=>$task->fields['actiontime'],
                         'cost_time'=>$cost_time,
                         'cost_fixed'=>$cost_fixed,
-                        'budgets_id'=>$config->fields["budgets_id"],
                         'entities_id'=>$ticket->fields['entities_id'],
                      ]);
 

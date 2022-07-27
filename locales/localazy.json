@@ -1,0 +1,19 @@
+{
+	"upload": {
+		"type": "pot",
+		"deprecate": "project",
+		"files": [
+			"costs.pot",
+			{
+				"group": "existing",
+				"file": "costs.pot",
+				"pattern": "./*.po",
+				"type": "po",
+				"lang": "${autodetectLang}"
+			}
+		]
+	},
+	"download": {
+		"files": "${languageCode}_${regionCode}.po"
+	}
+}

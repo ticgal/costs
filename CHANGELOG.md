@@ -1,6 +1,10 @@
 # Costs
 The cost plugin for GLPI
 
+## 3.0.1 - 2022-07-27
+## Features
+- Localazy integration #10666
+
 ## 3.0.0 - 2022-07-07
 ### Features
 - GLPI 10 compatibility #10398

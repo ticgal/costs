@@ -1,15 +1,15 @@
 # Cost Glpi Plugin.
-# Copyright (C) 2021 TICgal
+# Copyright (C) 2022 TICgal
 # This file is distributed under the same license as the PACKAGE package.
-# TICgal, 2021
+# TICgal, 2022
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-20 14:43+0200\n"
-"PO-Revision-Date: 2021-MO-DA HO:MI+ZONE\n"
+"POT-Creation-Date: 2022-07-27 12:10+0200\n"
+"PO-Revision-Date: 2022-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -26,6 +26,6 @@ msgstr ""
 msgid "Add task description on cost"
 msgstr ""
 
-#: inc/ticket.class.php:53 inc/ticket.class.php:116
+#: inc/ticket.class.php:53 inc/ticket.class.php:119
 msgid "Billable"
 msgstr ""

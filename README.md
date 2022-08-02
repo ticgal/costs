@@ -7,6 +7,7 @@ GLPI Plugin Costs. Automatic costs generation.
 [![License](https://img.shields.io/badge/License-GNU%20AGPLv3-blue.svg?style=flat-square)](https://github.com/ticgal/costs/blob/master/LICENSE)
 [![Twitter](https://img.shields.io/badge/Twitter-TICgal-blue.svg?style=flat-square)](https://twitter.com/ticgalcom)
 [![Web](https://img.shields.io/badge/Web-TICgal-blue.svg?style=flat-square)](https://tic.gal/en/project/costs-control-plugin-glpi/)
+[![Localazy](https://img.shields.io/badge/Translate-Localazy-cyan)](https://localazy.com/p/costs#translations)
 
 ## English
 This plugin allows you to assign both fixed an time (hourly) costs and generates them automatically when solving a ticket.

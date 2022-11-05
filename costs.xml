@@ -2,7 +2,7 @@
    <name>Costs</name>
    <key>costs</key>
    <state>stable</state> <!-- stable | unstable | beta | alpha -->
-   <logo>https://raw.githubusercontent.com/ticgal/costs/multimedia/costs-40.png</logo>
+   <logo>https://raw.githubusercontent.com/ticgal/costs/multimedia/costs.png</logo>
    <description>
       <short>
 		<en>Automatic costs generation for GLPI</en>

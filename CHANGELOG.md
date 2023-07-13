@@ -1,6 +1,10 @@
 # Costs
 The cost plugin for GLPI
 
+## 3.0.2 - 2023-07-13
+## Features
+- Billable dropdown at voucher options #12572
+
 ## 3.0.1 - 2022-07-27
 ## Features
 - Localazy integration #10666

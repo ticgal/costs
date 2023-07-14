@@ -135,7 +135,6 @@ class PluginCostsConfig extends CommonDBTM
             $query = "CREATE TABLE `$table` (
 				`id` int {$default_key_sign} NOT NULL auto_increment,
 				`taskdescription` tinyint NOT NULL default '0',
-				`dropdown_in_vouchers` tinyint NOT NULL default '0',
 				PRIMARY KEY  (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
 
@@ -144,9 +143,6 @@ class PluginCostsConfig extends CommonDBTM
                 'id' => 1,
                 'taskdescription' => 0,
             ]);
-        } else {
-            $migration->addField($table, 'dropdown_in_vouchers', 'bool', ['value' => '0']);
-            $migration->migrationOneTable($table);
         }
     }
 }

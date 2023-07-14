@@ -145,22 +145,6 @@ class PluginCostsTicket extends CommonDBTM
                             'billable' => $billable
                         ];
                         TemplateRenderer::getInstance()->display($template, $template_options);
-
-                        $config = PluginCostsConfig::getInstance();
-                        if(isset($config->fields['dropdown_in_vouchers']) && $config->fields['dropdown_in_vouchers'] == 1) {
-                            $script = <<<JAVASCRIPT
-                            if($('#plugin-credit-ticket-config').length > 0){
-                                $('#billeable_dropdown').detach().appendTo('#plugin-credit-ticket-config .accordion-body');
-                            }
-                            JAVASCRIPT;
-
-                            if(Session::haveRight(
-                                PluginCreditTicketConfig::$rightname,
-                                PluginCreditTicketConfig::TICKET_FORM
-                            )) {
-                                echo Html::scriptBlock($script);
-                            }
-                        }
                     }
                 }
             }

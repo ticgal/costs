@@ -1,6 +1,6 @@
-# GLPI plugin Costs
+# Costs for GLPI
 
-<img src="https://raw.githubusercontent.com/ticgal/costs/multimedia/costs-logo-trans.png" alt="Costs Logo" height="250px" width="250px" class="js-lazy-loaded">
+<img src="https://raw.githubusercontent.com/ticgal/costs/multimedia/costs.png" alt="Costs Logo" height="250px" width="250px" class="js-lazy-loaded">
 
 GLPI Plugin Costs. Automatic costs generation.
 

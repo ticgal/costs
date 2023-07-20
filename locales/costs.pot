@@ -1,15 +1,15 @@
-# Cost Glpi Plugin.
-# Copyright (C) 2022 TICgal
+# costs Glpi Plugin.
+# Copyright (C) 2023 TICgal
 # This file is distributed under the same license as the PACKAGE package.
-# TICgal, 2022
+# TICgal, 2023
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-27 12:10+0200\n"
-"PO-Revision-Date: 2022-MO-DA HO:MI+ZONE\n"
+"POT-Creation-Date: 2023-07-19 13:56+0200\n"
+"PO-Revision-Date: 2023-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -17,15 +17,15 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: inc/config.class.php:46 inc/config.class.php:102 inc/entity.class.php:46
-#: inc/task.class.php:7 inc/ticket.class.php:41
+#: inc/config.class.php:54 inc/config.class.php:106 inc/entity.class.php:46
+#: inc/ticket.class.php:44 inc/task.class.php:42
 msgid "Costs"
 msgstr ""
 
-#: inc/config.class.php:89
-msgid "Add task description on cost"
+#: inc/ticket.class.php:57 templates/billable_dropdown.html.twig:44
+msgid "Billable"
 msgstr ""
 
-#: inc/ticket.class.php:53 inc/ticket.class.php:119
-msgid "Billable"
+#: templates/config.html.twig:65
+msgid "Add task description on cost"
 msgstr ""

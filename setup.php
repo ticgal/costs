@@ -32,7 +32,10 @@
  @link      https://tic.gal
  @since     2018
  ---------------------------------------------------------------------- */
-define ('PLUGIN_COSTS_VERSION', '3.0.1');
+
+use Glpi\Plugin\Hooks;
+
+define('PLUGIN_COSTS_VERSION', '3.0.2');
 // Minimal GLPI version, inclusive
 define("PLUGIN_COSTS_MIN_GLPI", "10.0");
 // Maximum GLPI version, exclusive
@@ -40,46 +43,55 @@ define("PLUGIN_COSTS_MAX_GLPI", "11.0");
 
 global $CFG_GLPI;
 if (!defined('PLUGIN_COSTS_NUMBER_STEP')) {
-   define("PLUGIN_COSTS_NUMBER_STEP", 1 / pow(1, $CFG_GLPI["decimal_number"]));
+    define("PLUGIN_COSTS_NUMBER_STEP", 1 / pow(1, $CFG_GLPI["decimal_number"]));
 }
 
-function plugin_version_costs() {
-   return ['name'       => 'Costs',
-      'version'        => PLUGIN_COSTS_VERSION,
-      'author'         => '<a href="https://tic.gal">TICgal</a>',
-      'homepage'       => 'https://tic.gal/en/project/costs-control-plugin-glpi/',
-      'license'        => 'GPLv3+',
-      'requirements'   => [
-         'glpi'   => [
-            'min' => PLUGIN_COSTS_MIN_GLPI,
-            'max' => PLUGIN_COSTS_MAX_GLPI,
-         ]
-      ]];
+function plugin_version_costs()
+{
+    return [
+        'name'          => 'Costs',
+        'version'       => PLUGIN_COSTS_VERSION,
+        'author'        => '<a href="https://tic.gal">TICgal</a>',
+        'homepage'      => 'https://tic.gal/en/project/costs-control-plugin-glpi/',
+        'license'       => 'GPLv3+',
+        'requirements'  => [
+            'glpi'  => [
+                'min'   => PLUGIN_COSTS_MIN_GLPI,
+                'max'   => PLUGIN_COSTS_MAX_GLPI,
+            ]
+        ]
+    ];
 }
 
-function plugin_init_costs() {
-   global $PLUGIN_HOOKS;
+function plugin_init_costs()
+{
+    global $PLUGIN_HOOKS;
 
-   if (Session::haveRight('entity', UPDATE)) {
-       Plugin::registerClass('PluginCostsEntity', ['addtabon' => 'Entity']);
-   }
-   if (Session::haveRightsOr("config", [READ, UPDATE])) {
-      Plugin::registerClass('PluginCostsConfig', ['addtabon' => 'Config']);
-      $PLUGIN_HOOKS['config_page']['costs'] = 'front/config.form.php';
-   }
+    if (Session::haveRight('entity', UPDATE)) {
+        Plugin::registerClass('PluginCostsEntity', ['addtabon' => 'Entity']);
+    }
 
-   $PLUGIN_HOOKS['csrf_compliant']['costs'] = true;
-   $PLUGIN_HOOKS['pre_item_update']['costs'] = [
-      'Ticket'=>['PluginCostsTicket','ticketUpdate'],
-      'TicketTask'=>['PluginCostsTask','preTaskUpdate']
-   ];
-   $PLUGIN_HOOKS['post_item_form']['costs']=['PluginCostsTicket','postItemForm'];
-   $PLUGIN_HOOKS['item_add']['costs']=[
-      'Ticket'=>['PluginCostsTicket','ticketAdd'],
-      'TicketTask'=>['PluginCostsTask','taskAdd']
-   ];
-   $PLUGIN_HOOKS['item_purge']['costs']=[
-      'TicketTask'=>['PluginCostsTask','taskPurge']
-   ];
+    if (Session::haveRightsOr("config", [READ, UPDATE])) {
+        Plugin::registerClass('PluginCostsConfig', ['addtabon' => 'Config']);
 
+        $PLUGIN_HOOKS['config_page']['costs'] = 'front/config.form.php';
+    }
+
+    $PLUGIN_HOOKS['csrf_compliant']['costs'] = true;
+
+    $PLUGIN_HOOKS[Hooks::POST_ITEM_FORM]['costs'] = ['PluginCostsTicket','postItemForm'];
+
+    $PLUGIN_HOOKS[Hooks::PRE_ITEM_UPDATE]['costs'] = [
+        'Ticket'       => ['PluginCostsTicket','ticketUpdate'],
+        'TicketTask'   => ['PluginCostsTask','preTaskUpdate']
+    ];
+
+    $PLUGIN_HOOKS[Hooks::ITEM_ADD]['costs'] = [
+        'Ticket'       => ['PluginCostsTicket','ticketAdd'],
+        'TicketTask'   => ['PluginCostsTask','taskAdd']
+    ];
+
+    $PLUGIN_HOOKS[Hooks::ITEM_PURGE]['costs'] = [
+        'TicketTask'   => ['PluginCostsTask','taskPurge']
+    ];
 }

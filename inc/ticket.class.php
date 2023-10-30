@@ -140,9 +140,21 @@ class PluginCostsTicket extends CommonDBTM
                             $billable = $cost_ticket->fields['billable'];
                         }
 
+                        $label_class = 'col-xxl-4';
+                        $input_class = 'col-xxl-8';
+                        if (version_compare(GLPI_VERSION, '10.0.10', '>=')) {
+                            $label_class = 'col-xxl-5';
+                            $input_class = 'col-xxl-7';
+                        }
+
                         $template = "@costs/billable_dropdown.html.twig";
                         $template_options = [
-                            'billable' => $billable
+                            'billable' => $billable,
+                            'options'  => [
+                                'field_class' => 'col-12',
+                                'label_class' => $label_class,
+                                'input_class' => $input_class,
+                            ]
                         ];
                         TemplateRenderer::getInstance()->display($template, $template_options);
                     }

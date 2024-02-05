@@ -1,5 +1,39 @@
 <?php
 
+/**
+ * -------------------------------------------------------------------------
+ * Costs plugin for GLPI
+ * Copyright (C) 2018-2024 by the TICgal Team.
+ *
+ * https://github.com/ticgal/costs
+ * -------------------------------------------------------------------------
+ * LICENSE
+ *
+ * This file is part of the Costs plugin.
+ *
+ * Costs plugin is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Costs plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Costs. If not, see <http://www.gnu.org/licenses/>.
+ * -------------------------------------------------------------------------
+ * @package   Costs
+ * @author    the TICgal team
+ * @copyright Copyright (c) 2018-2024 TICgal team
+ * @license   AGPL License 3.0 or (at your option) any later version
+ *             http://www.gnu.org/licenses/agpl-3.0-standalone.html
+ * @link      https://tic.gal
+ * @since     2018
+ * -------------------------------------------------------------------------
+ */
+
 use Glpi\Application\View\TemplateRenderer;
 
 if(!defined('GLPI_ROOT')) {
@@ -8,7 +42,9 @@ if(!defined('GLPI_ROOT')) {
 
 class PluginCostsConfig extends CommonDBTM
 {
-    private static $_instance = null;
+    public static $rightname = 'config';
+
+    private static $instance = null;
 
     public function __construct()
     {
@@ -17,56 +53,42 @@ class PluginCostsConfig extends CommonDBTM
             $this->getFromDB(1);
         }
     }
-    /**
-    * Summary of canCreate
-    * @return boolean
-    */
-    public static function canCreate()
-    {
-        return Session::haveRight('config', UPDATE);
-    }
-
-    /**
-    * Summary of canView
-    * @return boolean
-    */
-    public static function canView()
-    {
-        return Session::haveRight('config', READ);
-    }
-
-    /**
-    * Summary of canUpdate
-    * @return boolean
-    */
-    public static function canUpdate()
-    {
-        return Session::haveRight('config', UPDATE);
-    }
 
     /**
     * Summary of getTypeName
     * @param mixed $nb plural
-    * @return mixed
+    * @return string
     */
-    public static function getTypeName($nb = 0)
+    public static function getTypeName($nb = 0): string
     {
         return __("Costs", "costs");
     }
 
-    public static function getInstance()
+    /**
+     * getInstance
+     *
+     * @param  mixed $n
+     * @return mixed
+     */
+    public static function getInstance($n = 1): mixed
     {
-
-        if (!isset(self::$_instance)) {
-            self::$_instance = new self();
-            if (!self::$_instance->getFromDB(1)) {
-                self::$_instance->getEmpty();
+        if (!isset(self::$instance)) {
+            self::$instance = new self();
+            if (!self::$instance->getFromDB($n)) {
+                self::$instance->getEmpty();
             }
         }
-        return self::$_instance;
+
+        return self::$instance;
     }
 
-    public static function getConfig($update = false)
+    /**
+     * getConfig
+     *
+     * @param  mixed $update
+     * @return mixed
+     */
+    public static function getConfig($update = false): mixed
     {
         static $config = null;
         if (is_null($config)) {
@@ -75,55 +97,76 @@ class PluginCostsConfig extends CommonDBTM
         if ($update) {
             $config->getFromDB(1);
         }
+
         return $config;
     }
 
     /**
     * Summary of showConfigForm
-    * @param mixed $item is the config
+    *
     * @return boolean
     */
-    public static function showConfigForm()
+    public static function showConfigForm(): bool
     {
         $config = self::getInstance();
 
         $plugin = new Plugin();
         $template = "@costs/config.html.twig";
         $template_options = [
-            'item' 		=> $config,
-            'credit'	=> ($plugin->isInstalled('credit') && $plugin->isActivated('credit')),
+            'item'      => $config,
+            'credit'    => ($plugin->isInstalled('credit') && $plugin->isActivated('credit')),
         ];
         TemplateRenderer::getInstance()->display($template, $template_options);
 
         return false;
     }
 
-    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
+    /**
+     * getTabNameForItem
+     *
+     * @param  mixed $item
+     * @param  mixed $withtemplate
+     * @return string
+     */
+    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
     {
-        global $LANG;
-
         if ($item->getType() == 'Config') {
             return __("Costs", "costs");
         }
+
         return '';
     }
 
-    public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
+    /**
+     * displayTabContentForItem
+     *
+     * @param  mixed $item
+     * @param  mixed $tabnum
+     * @param  mixed $withtemplate
+     * @return bool
+     */
+    public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0): bool
     {
-
         if ($item->getType() == 'Config') {
             self::showConfigForm($item);
         }
+
         return true;
     }
 
-    public static function install(Migration $migration)
+    /**
+     * install
+     *
+     * @param  mixed $migration
+     * @return void
+     */
+    public static function install(Migration $migration): void
     {
         global $DB;
 
-        $default_charset 	= DBConnection::getDefaultCharset();
-        $default_collation 	= DBConnection::getDefaultCollation();
-        $default_key_sign 	= DBConnection::getDefaultPrimaryKeySignOption();
+        $default_charset    = DBConnection::getDefaultCharset();
+        $default_collation  = DBConnection::getDefaultCollation();
+        $default_key_sign   = DBConnection::getDefaultPrimaryKeySignOption();
 
         $table  = self::getTable();
         $config = new self();
@@ -133,10 +176,10 @@ class PluginCostsConfig extends CommonDBTM
             //Install
 
             $query = "CREATE TABLE `$table` (
-				`id` int {$default_key_sign} NOT NULL auto_increment,
-				`taskdescription` tinyint NOT NULL default '0',
-				PRIMARY KEY  (`id`)
-			) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+                `id` int {$default_key_sign} NOT NULL auto_increment,
+                `taskdescription` tinyint NOT NULL default '0',
+                PRIMARY KEY  (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
 
             $DB->query($query) or die($DB->error());
             $config->add([

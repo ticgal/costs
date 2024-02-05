@@ -300,7 +300,7 @@ class PluginCostsTask extends CommonDBTM
             COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
             $DB->query($query) or die($DB->error());
         } else {
-            $migration->changeField($table, 'costs_id', 'costs_id', 'int');
+            $migration->changeField($table, 'costs_id', 'costs_id', 'fkey');
         }
 
         $migration->executeMigration();

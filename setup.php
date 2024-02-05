@@ -93,16 +93,16 @@ function plugin_init_costs(): void
     $PLUGIN_HOOKS[Hooks::POST_ITEM_FORM]['costs'] = ['PluginCostsTicket','postItemForm'];
 
     $PLUGIN_HOOKS[Hooks::PRE_ITEM_UPDATE]['costs'] = [
-        'Ticket'       => ['PluginCostsTicket','ticketUpdate'],
-        'TicketTask'   => ['PluginCostsTask','preTaskUpdate']
+        Ticket::class       => ['PluginCostsTicket','ticketUpdate'],
+        TicketTask::class   => ['PluginCostsTask','preTaskUpdate']
     ];
 
     $PLUGIN_HOOKS[Hooks::ITEM_ADD]['costs'] = [
-        'Ticket'       => ['PluginCostsTicket','ticketAdd'],
-        'TicketTask'   => ['PluginCostsTask','taskAdd']
+        Ticket::class       => ['PluginCostsTicket','ticketAdd'],
+        TicketTask::class   => ['PluginCostsTask','taskAdd']
     ];
 
     $PLUGIN_HOOKS[Hooks::ITEM_PURGE]['costs'] = [
-        'TicketTask'   => ['PluginCostsTask','taskPurge']
+        TicketTask::class   => ['PluginCostsTask','taskPurge']
     ];
 }

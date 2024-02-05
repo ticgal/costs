@@ -86,11 +86,13 @@ function plugin_costs_uninstall(): bool
  * plugin_costs_getAddSearchOptions
  *
  * @param  mixed $itemtype
- * @return mixed
+ * @return array
  */
-function plugin_costs_getAddSearchOptions($itemtype): mixed
+function plugin_costs_getAddSearchOptions($itemtype): array
 {
     if ($itemtype == Ticket::getType()) {
         return PluginCostsTicket::rawSearchOptionsToAdd();
     }
+
+    return [];
 }

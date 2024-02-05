@@ -39,11 +39,7 @@ include("../../../inc/includes.php");
 $config = new PluginCostsConfig();
 if (isset($_POST["update"])) {
     $config->check($_POST['id'], UPDATE);
-   // save
     $config->update($_POST);
-    Html::back();
-} elseif (isset($_POST["refresh"])) {
-    $config->refresh($_POST); // used to refresh process list, task category list
     Html::back();
 }
 

@@ -1,14 +1,14 @@
 # English translations for PACKAGE package.
-# Copyright (C) 2023 TICgal
+# Copyright (C) 2024 TICgal
 # This file is distributed under the same license as the PACKAGE package.
-# Automatically generated, 2023.
+# Automatically generated, 2024.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-21 08:54+0200\n"
-"PO-Revision-Date: 2023-07-21 08:54+0200\n"
+"POT-Creation-Date: 2024-02-05 15:14+0100\n"
+"PO-Revision-Date: 2024-02-05 15:14+0100\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "Language: en_GB\n"
@@ -17,15 +17,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: inc/config.class.php:54 inc/config.class.php:106 inc/entity.class.php:46
-#: inc/ticket.class.php:44 inc/task.class.php:42
+#: inc/entity.class.php:53 inc/task.class.php:49 inc/config.class.php:64
+#: inc/config.class.php:134 inc/ticket.class.php:51
 msgid "Costs"
 msgstr "Costs"
 
-#: inc/ticket.class.php:57 templates/billable_dropdown.html.twig:44
+#: inc/ticket.class.php:67 templates/billable_dropdown.html.twig:42
 msgid "Billable"
 msgstr "Billable"
 
-#: templates/config.html.twig:65
+#: templates/config.html.twig:63
 msgid "Add task description on cost"
 msgstr "Add task description on cost"

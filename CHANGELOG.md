@@ -1,12 +1,16 @@
 # Costs
 The cost plugin for GLPI
 
+## 3.0.3 - 2024-02-05
+## Bugfixes
+- Fix install warning for unsigned integers #20073
+
 ## 3.0.2 - 2023-07-13
-## Features
+## Bugfixes
 - Billable dropdown update #12572
 
 ## 3.0.1 - 2022-07-27
-## Features
+## Bugfixes
 - Localazy integration #10666
 
 ## 3.0.0 - 2022-07-07

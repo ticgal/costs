@@ -36,7 +36,7 @@
 
 use Glpi\Plugin\Hooks;
 
-define('PLUGIN_COSTS_VERSION', '3.0.2');
+define('PLUGIN_COSTS_VERSION', '3.0.3');
 // Minimal GLPI version, inclusive
 define("PLUGIN_COSTS_MIN_GLPI", "10.0");
 // Maximum GLPI version, exclusive

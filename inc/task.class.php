@@ -38,15 +38,25 @@ class PluginCostsTask extends CommonDBTM
 {
     public static $rightname = 'task';
 
-    public static function getTypeName($nb = 0)
+    /**
+     * getTypeName
+     *
+     * @param  mixed $nb
+     * @return string
+     */
+    public static function getTypeName($nb = 0): string
     {
         return __('Costs', 'Costs');
     }
 
-    public static function taskAdd(TicketTask $task)
+    /**
+     * taskAdd
+     *
+     * @param  mixed $task
+     * @return void
+     */
+    public static function taskAdd(TicketTask $task): void
     {
-        global $DB;
-
         if (PluginCostsTicket::isBillable($task->fields['tickets_id'])) {
             $ticket = new Ticket();
             $ticket->getFromDB($task->fields['tickets_id']);
@@ -106,7 +116,13 @@ class PluginCostsTask extends CommonDBTM
         }
     }
 
-    public static function preTaskUpdate(TicketTask $task)
+    /**
+     * preTaskUpdate
+     *
+     * @param  mixed $task
+     * @return void
+     */
+    public static function preTaskUpdate(TicketTask $task): void
     {
         global $DB;
 
@@ -230,7 +246,13 @@ class PluginCostsTask extends CommonDBTM
         }
     }
 
-    public static function taskPurge(TicketTask $task)
+    /**
+     * taskPurge
+     *
+     * @param  mixed $task
+     * @return void
+     */
+    public static function taskPurge(TicketTask $task): void
     {
         global $DB;
 
@@ -249,23 +271,33 @@ class PluginCostsTask extends CommonDBTM
         }
     }
 
-    public static function install(Migration $migration)
+    /**
+     * install
+     *
+     * @param  mixed $migration
+     * @return void
+     */
+    public static function install(Migration $migration): void
     {
         global $DB;
 
-        $table = self::getTable();
+        $default_charset    = DBConnection::getDefaultCharset();
+        $default_collation  = DBConnection::getDefaultCollation();
+        $default_key_sign   = DBConnection::getDefaultPrimaryKeySignOption();
 
+        $table = self::getTable();
         if (!$DB->tableExists($table)) {
             $migration->displayMessage("Installing $table");
 
             $query = "CREATE TABLE IF NOT EXISTS `$table` (
-                `id` int(11) NOT NULL auto_increment,
-                `tasks_id` int(11) NOT NULL,
-                `costs_id` int(11) NOT NULL DEFAULT '0',
+                `id` INT {$default_key_sign} NOT NULL auto_increment,
+                `tasks_id` INT {$default_key_sign} NOT NULL,
+                `costs_id` INT {$default_key_sign} NOT NULL DEFAULT '0',
                 PRIMARY KEY (`id`),
                 KEY `tasks_id` (`tasks_id`),
                 KEY `costs_id` (`costs_id`)
-            ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
+            COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
             $DB->query($query) or die($DB->error());
         } else {
             $migration->changeField($table, 'costs_id', 'costs_id', 'int');

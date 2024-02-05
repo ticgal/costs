@@ -47,7 +47,12 @@ if (!defined('PLUGIN_COSTS_NUMBER_STEP')) {
     define("PLUGIN_COSTS_NUMBER_STEP", 1 / pow(1, $CFG_GLPI["decimal_number"]));
 }
 
-function plugin_version_costs()
+/**
+ * plugin_version_costs
+ *
+ * @return array
+ */
+function plugin_version_costs(): array
 {
     return [
         'name'          => 'Costs',
@@ -64,7 +69,12 @@ function plugin_version_costs()
     ];
 }
 
-function plugin_init_costs()
+/**
+ * plugin_init_costs
+ *
+ * @return void
+ */
+function plugin_init_costs(): void
 {
     global $PLUGIN_HOOKS;
 
@@ -78,7 +88,7 @@ function plugin_init_costs()
         $PLUGIN_HOOKS['config_page']['costs'] = 'front/config.form.php';
     }
 
-    $PLUGIN_HOOKS['csrf_compliant']['costs'] = true;
+    $PLUGIN_HOOKS[Hooks::CSRF_COMPLIANT]['costs'] = true;
 
     $PLUGIN_HOOKS[Hooks::POST_ITEM_FORM]['costs'] = ['PluginCostsTicket','postItemForm'];
 

@@ -40,15 +40,24 @@ class PluginCostsTicket extends CommonDBTM
 {
     public static $rightname = 'ticket';
 
-    public static function getTypeName($nb = 0)
+    /**
+     * getTypeName
+     *
+     * @param  mixed $nb
+     * @return string
+     */
+    public static function getTypeName($nb = 0): string
     {
         return __('Costs', 'Costs');
     }
 
-    public static function rawSearchOptionsToAdd()
+    /**
+     * rawSearchOptionsToAdd
+     *
+     * @return array
+     */
+    public static function rawSearchOptionsToAdd(): array
     {
-        global $DB;
-
         $opt = [];
 
         $opt[] = [
@@ -66,7 +75,13 @@ class PluginCostsTicket extends CommonDBTM
         return $opt;
     }
 
-    public static function deleteOldCosts($ID)
+    /**
+     * deleteOldCosts
+     *
+     * @param  mixed $ID
+     * @return void
+     */
+    public static function deleteOldCosts($ID): void
     {
         global $DB;
 
@@ -82,14 +97,26 @@ class PluginCostsTicket extends CommonDBTM
         }
     }
 
-    public static function isBillable($ticket_id)
+    /**
+     * isBillable
+     *
+     * @param  mixed $ticket_id
+     * @return mixed
+     */
+    public static function isBillable($ticket_id): mixed
     {
         $cost_ticket = new self();
         $cost_ticket->getFromDBByTicket($ticket_id);
         return $cost_ticket->fields['billable'];
     }
 
-    public function getFromDBByTicket($ticket_id)
+    /**
+     * getFromDBByTicket
+     *
+     * @param  mixed $ticket_id
+     * @return bool
+     */
+    public function getFromDBByTicket($ticket_id): bool
     {
         global $DB;
 
@@ -117,10 +144,14 @@ class PluginCostsTicket extends CommonDBTM
         }
     }
 
-    public static function postItemForm($params = [])
+    /**
+     * postItemForm
+     *
+     * @param  mixed $params
+     * @return void
+     */
+    public static function postItemForm($params = []): void
     {
-        global $DB;
-
         if (Session::getCurrentInterface() != "helpdesk") {
             $item = $params['item'];
             if (!is_array($item)) {
@@ -164,7 +195,13 @@ class PluginCostsTicket extends CommonDBTM
         }
     }
 
-    public static function ticketAdd(Ticket $ticket)
+    /**
+     * ticketAdd
+     *
+     * @param  mixed $ticket
+     * @return void
+     */
+    public static function ticketAdd(Ticket $ticket): void
     {
         if (array_key_exists('cost_billable', $ticket->input)) {
             $billable = $ticket->input['cost_billable'];
@@ -181,7 +218,13 @@ class PluginCostsTicket extends CommonDBTM
         $cost_ticket->add(['tickets_id' => $ticket->fields['id'],'billable' => $billable]);
     }
 
-    public static function ticketUpdate(Ticket $ticket)
+    /**
+     * ticketUpdate
+     *
+     * @param  mixed $ticket
+     * @return void
+     */
+    public static function ticketUpdate(Ticket $ticket): void
     {
         if (array_key_exists('cost_billable', $ticket->input)) {
             $cost_ticket = new self();
@@ -193,7 +236,13 @@ class PluginCostsTicket extends CommonDBTM
         }
     }
 
-    public static function install(Migration $migration)
+    /**
+     * install
+     *
+     * @param  mixed $migration
+     * @return void
+     */
+    public static function install(Migration $migration): void
     {
         global $DB;
 

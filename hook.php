@@ -34,7 +34,12 @@
  * -------------------------------------------------------------------------
  */
 
-function plugin_costs_install()
+/**
+ * plugin_costs_install
+ *
+ * @return bool
+ */
+function plugin_costs_install(): bool
 {
     $migration = new Migration(PLUGIN_COSTS_VERSION);
 
@@ -53,7 +58,12 @@ function plugin_costs_install()
     return true;
 }
 
-function plugin_costs_uninstall()
+/**
+ * plugin_costs_uninstall
+ *
+ * @return bool
+ */
+function plugin_costs_uninstall(): bool
 {
     $migration = new Migration(PLUGIN_COSTS_VERSION);
 
@@ -72,7 +82,13 @@ function plugin_costs_uninstall()
     return true;
 }
 
-function plugin_costs_getAddSearchOptions($itemtype)
+/**
+ * plugin_costs_getAddSearchOptions
+ *
+ * @param  mixed $itemtype
+ * @return mixed
+ */
+function plugin_costs_getAddSearchOptions($itemtype): mixed
 {
     if ($itemtype == Ticket::getType()) {
         return PluginCostsTicket::rawSearchOptionsToAdd();

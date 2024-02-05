@@ -42,12 +42,25 @@ class PluginCostsEntity extends CommonDBTM
 {
     public static $rightname = 'entity';
 
-    static function getTypeName($nb = 0)
+    /**
+     * getTypeName
+     *
+     * @param  mixed $nb
+     * @return string
+     */
+    public static function getTypeName($nb = 0): string
     {
         return __('Costs', 'Costs');
     }
 
-    function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
+    /**
+     * getTabNameForItem
+     *
+     * @param  mixed $item
+     * @param  mixed $withtemplate
+     * @return string
+     */
+    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
     {
         switch ($item::getType()) {
             case Entity::getType():
@@ -57,16 +70,32 @@ class PluginCostsEntity extends CommonDBTM
         return '';
     }
 
-    static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
+    /**
+     * displayTabContentForItem
+     *
+     * @param  mixed $item
+     * @param  mixed $tabnum
+     * @param  mixed $withtemplate
+     * @return bool
+     */
+    public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0): bool
     {
         switch ($item::getType()) {
             case Entity::getType():
                 self::displayTabForEntity($item);
                 break;
         }
+
+        return true;
     }
 
-    public function getFromDBByEntity($entities_id)
+    /**
+     * getFromDBByEntity
+     *
+     * @param  mixed $entities_id
+     * @return bool
+     */
+    public function getFromDBByEntity($entities_id): bool
     {
         global $DB;
 
@@ -87,10 +116,14 @@ class PluginCostsEntity extends CommonDBTM
         }
     }
 
-    static function displayTabForEntity(Entity $entity)
+    /**
+     * displayTabForEntity
+     *
+     * @param  mixed $entity
+     * @return bool
+     */
+    public static function displayTabForEntity(Entity $entity): bool
     {
-        global $DB, $CFG_GLPI;
-
         $ID = $entity->getField('id');
         if (!$entity->can($ID, READ)) {
             return false;
@@ -178,7 +211,13 @@ class PluginCostsEntity extends CommonDBTM
         return false;
     }
 
-    static function getConfigID($entities_id)
+    /**
+     * getConfigID
+     *
+     * @param  mixed $entities_id
+     * @return mixed
+     */
+    public static function getConfigID($entities_id): mixed
     {
 
         $config = new self();
@@ -193,7 +232,13 @@ class PluginCostsEntity extends CommonDBTM
         }
     }
 
-    static function install(Migration $migration)
+    /**
+     * install
+     *
+     * @param  mixed $migration
+     * @return void
+     */
+    public static function install(Migration $migration): void
     {
         global $DB;
 
@@ -206,17 +251,18 @@ class PluginCostsEntity extends CommonDBTM
         if (!$DB->tableExists($table)) {
             $migration->displayMessage("Installing $table");
 
-            $query = "CREATE TABLE IF NOT EXISTS $table (
-         			id int {$default_key_sign} NOT NULL auto_increment,
-         			entities_id int {$default_key_sign} NOT NULL DEFAULT '0',
-         			fixed_cost float NOT NULL default '0',
-         			time_cost float NOT NULL default '0',
-                  cost_private tinyint NOT NULL DEFAULT '0',
-                  auto_cost tinyint NOT NULL DEFAULT '0',
-                  inheritance tinyint NOT NULL DEFAULT '0',
-         			PRIMARY KEY (id),
-         			KEY entities_id (entities_id)
-         		) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            $query = "CREATE TABLE IF NOT EXISTS `$table` (
+                `id` int {$default_key_sign} NOT NULL auto_increment,
+                `entities_id` int {$default_key_sign} NOT NULL DEFAULT '0',
+                `fixed_cost` float NOT NULL default '0',
+                `time_cost` float NOT NULL default '0',
+                `cost_private` tinyint NOT NULL DEFAULT '0',
+                `auto_cost` tinyint NOT NULL DEFAULT '0',
+                `inheritance` tinyint NOT NULL DEFAULT '0',
+                PRIMARY KEY (id),
+                KEY entities_id (entities_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
+            COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
             $DB->query($query) or die($DB->error());
         } else {
             if (!$DB->fieldExists($table, 'auto_cost')) {
@@ -233,7 +279,13 @@ class PluginCostsEntity extends CommonDBTM
         $migration->executeMigration();
     }
 
-    static function unistall(Migration $migration)
+    /**
+     * unistall
+     *
+     * @param  mixed $migration
+     * @return void
+     */
+    public static function unistall(Migration $migration): void
     {
         $table = self::getTable();
         $migration->displayMessage("Uninstalling $table");

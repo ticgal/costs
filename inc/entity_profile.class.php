@@ -45,10 +45,14 @@ class PluginCostsEntity_Profile extends CommonDBRelation
     public static $itemtype_2 = 'Profile';
     public static $items_id_2 = 'profiles_id';
 
-    static function showForEntity(Entity $entity)
+    /**
+     * showForEntity
+     *
+     * @param  mixed $entity
+     * @return void
+     */
+    public static function showForEntity(Entity $entity): void
     {
-        global $DB;
-
         $instID = $entity->fields['id'];
 
         $canedit = $entity->canUpdateItem();
@@ -134,9 +138,14 @@ class PluginCostsEntity_Profile extends CommonDBRelation
         echo "</div>";
     }
 
-    static function showForParent($entities_id)
+    /**
+     * showForParent
+     *
+     * @param  mixed $entities_id
+     * @return void
+     */
+    public static function showForParent($entities_id): void
     {
-
         echo "<div class='spaced'>";
         echo "<table class='tab_cadre_fixehov'>";
         $header_begin  = "<tr>";
@@ -164,7 +173,14 @@ class PluginCostsEntity_Profile extends CommonDBRelation
         echo "</div>";
     }
 
-    static function getUsedProfiles($entities_id, $only_id = false)
+    /**
+     * getUsedProfiles
+     *
+     * @param  mixed $entities_id
+     * @param  mixed $only_id
+     * @return array
+     */
+    public static function getUsedProfiles($entities_id, $only_id = false): array
     {
         global $DB;
 
@@ -189,28 +205,44 @@ class PluginCostsEntity_Profile extends CommonDBRelation
         return $profiles;
     }
 
-    public static function install(Migration $migration)
+    /**
+     * install
+     *
+     * @param  mixed $migration
+     * @return void
+     */
+    public static function install(Migration $migration): void
     {
         global $DB;
 
-        $table = self::getTable();
+        $default_charset    = DBConnection::getDefaultCharset();
+        $default_collation  = DBConnection::getDefaultCollation();
+        $default_key_sign   = DBConnection::getDefaultPrimaryKeySignOption();
 
+        $table = self::getTable();
         if (!$DB->tableExists($table)) {
             $migration->displayMessage("Installing $table");
-            $query = "CREATE TABLE IF NOT EXISTS $table (
-				`id` INT(11) NOT NULL auto_increment,
-				`entities_id` int(11) NOT NULL DEFAULT '0',
-				`profiles_id` int(11) NOT NULL DEFAULT '0',
+            $query = "CREATE TABLE IF NOT EXISTS `$table` (
+				`id` INT {$default_key_sign} NOT NULL auto_increment,
+				`entities_id` INT {$default_key_sign} NOT NULL DEFAULT '0',
+				`profiles_id` INT {$default_key_sign} NOT NULL DEFAULT '0',
 				`fixed_cost` float NOT NULL default '0',
 				`time_cost` float NOT NULL default '0',
 				PRIMARY KEY (`id`),
 				UNIQUE KEY `unicity` (`entities_id`,`profiles_id`)
-			) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
+            COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
             $DB->query($query) or die($DB->error());
         }
     }
 
-    static function unistall(Migration $migration)
+    /**
+     * unistall
+     *
+     * @param  mixed $migration
+     * @return void
+     */
+    public static function unistall(Migration $migration): void
     {
         $table = self::getTable();
         $migration->displayMessage("Uninstalling $table");

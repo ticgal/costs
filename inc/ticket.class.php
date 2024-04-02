@@ -174,7 +174,10 @@ class PluginCostsTicket extends CommonDBTM
 
                         $label_class = 'col-xxl-4';
                         $input_class = 'col-xxl-8';
-                        if (version_compare(GLPI_VERSION, '10.0.10', '>=')) {
+                        if (
+                            version_compare(GLPI_VERSION, '10.0.10', '>=') &&
+                            version_compare(GLPI_VERSION, '10.0.14', '<')
+                        ) {
                             $label_class = 'col-xxl-5';
                             $input_class = 'col-xxl-7';
                         }

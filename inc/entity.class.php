@@ -215,11 +215,10 @@ class PluginCostsEntity extends CommonDBTM
      * getConfigID
      *
      * @param  mixed $entities_id
-     * @return mixed
+     * @return int
      */
-    public static function getConfigID($entities_id): mixed
+    public static function getConfigID($entities_id): int
     {
-
         $config = new self();
         $config->getFromDBByEntity($entities_id);
         if ($config->fields['inheritance']) {

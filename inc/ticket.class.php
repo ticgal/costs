@@ -101,9 +101,9 @@ class PluginCostsTicket extends CommonDBTM
      * isBillable
      *
      * @param  mixed $ticket_id
-     * @return mixed
+     * @return boolean
      */
-    public static function isBillable($ticket_id): mixed
+    public static function isBillable($ticket_id): bool
     {
         $cost_ticket = new self();
         $cost_ticket->getFromDBByTicket($ticket_id);

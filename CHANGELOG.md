@@ -1,6 +1,10 @@
 # Costs
 The cost plugin for GLPI
 
+## 3.0.4 - 2024-06-10
+## Bugfixes
+- Fix strong typing definition #22663
+
 ## 3.0.3 - 2024-02-05
 ## Bugfixes
 - Fix install warning for unsigned integers #20073

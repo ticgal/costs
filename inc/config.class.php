@@ -68,9 +68,9 @@ class PluginCostsConfig extends CommonDBTM
      * getInstance
      *
      * @param  mixed $n
-     * @return mixed
+     * @return PluginCostsConfig
      */
-    public static function getInstance($n = 1): mixed
+    public static function getInstance($n = 1): PluginCostsConfig
     {
         if (!isset(self::$instance)) {
             self::$instance = new self();
@@ -86,9 +86,9 @@ class PluginCostsConfig extends CommonDBTM
      * getConfig
      *
      * @param  mixed $update
-     * @return mixed
+     * @return PluginCostsConfig
      */
-    public static function getConfig($update = false): mixed
+    public static function getConfig($update = false): PluginCostsConfig
     {
         static $config = null;
         if (is_null($config)) {

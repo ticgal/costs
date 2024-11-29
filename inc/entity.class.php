@@ -97,6 +97,7 @@ class PluginCostsEntity extends CommonDBTM
      */
     public function getFromDBByEntity($entities_id): bool
     {
+        /** @var \DBmysql $DB */
         global $DB;
 
         $req = $DB->request(['FROM' => self::getTable(),'WHERE' => ['entities_id' => $entities_id]]);
@@ -239,6 +240,7 @@ class PluginCostsEntity extends CommonDBTM
      */
     public static function install(Migration $migration): void
     {
+        /** @var \DBmysql $DB */
         global $DB;
 
         $default_charset = DBConnection::getDefaultCharset();
@@ -262,7 +264,7 @@ class PluginCostsEntity extends CommonDBTM
                 KEY entities_id (entities_id)
             ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
             COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-            $DB->query($query) or die($DB->error());
+            $DB->request($query) or die($DB->error());
         } else {
             if (!$DB->fieldExists($table, 'auto_cost')) {
                 $migration->displayMessage("Upgrading $table");

@@ -48,6 +48,7 @@ class PluginCostsConfig extends CommonDBTM
 
     public function __construct()
     {
+        /** @var \DBmysql $DB */
         global $DB;
         if ($DB->tableExists(self::getTable())) {
             $this->getFromDB(1);
@@ -162,6 +163,7 @@ class PluginCostsConfig extends CommonDBTM
      */
     public static function install(Migration $migration): void
     {
+        /** @var \DBmysql $DB */
         global $DB;
 
         $default_charset    = DBConnection::getDefaultCharset();
@@ -182,7 +184,7 @@ class PluginCostsConfig extends CommonDBTM
             ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
             COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
 
-            $DB->query($query) or die($DB->error());
+            $DB->request($query) or die($DB->error());
             $config->add([
                 'id' => 1,
                 'taskdescription' => 0,

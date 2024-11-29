@@ -124,6 +124,7 @@ class PluginCostsTask extends CommonDBTM
      */
     public static function preTaskUpdate(TicketTask $task): void
     {
+        /** @var \DBmysql $DB */
         global $DB;
 
         if (PluginCostsTicket::isBillable($task->fields['tickets_id'])) {

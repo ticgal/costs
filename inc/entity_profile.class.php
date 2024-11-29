@@ -182,6 +182,7 @@ class PluginCostsEntity_Profile extends CommonDBRelation
      */
     public static function getUsedProfiles($entities_id, $only_id = false): array
     {
+        /** @var \DBmysql $DB */
         global $DB;
 
         $profiles = [];
@@ -213,6 +214,7 @@ class PluginCostsEntity_Profile extends CommonDBRelation
      */
     public static function install(Migration $migration): void
     {
+        /** @var \DBmysql $DB */
         global $DB;
 
         $default_charset    = DBConnection::getDefaultCharset();
@@ -232,7 +234,7 @@ class PluginCostsEntity_Profile extends CommonDBRelation
 				UNIQUE KEY `unicity` (`entities_id`,`profiles_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
             COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-            $DB->query($query) or die($DB->error());
+            $DB->request($query) or die($DB->error());
         }
     }
 

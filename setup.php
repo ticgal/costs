@@ -36,12 +36,13 @@
 
 use Glpi\Plugin\Hooks;
 
-define('PLUGIN_COSTS_VERSION', '3.0.4');
+define('PLUGIN_COSTS_VERSION', '3.0.5');
 // Minimal GLPI version, inclusive
 define("PLUGIN_COSTS_MIN_GLPI", "10.0");
 // Maximum GLPI version, exclusive
 define("PLUGIN_COSTS_MAX_GLPI", "11.0");
 
+/** @var array $CFG_GLPI */
 global $CFG_GLPI;
 if (!defined('PLUGIN_COSTS_NUMBER_STEP')) {
     define("PLUGIN_COSTS_NUMBER_STEP", 1 / pow(1, $CFG_GLPI["decimal_number"]));
@@ -76,33 +77,34 @@ function plugin_version_costs(): array
  */
 function plugin_init_costs(): void
 {
+    /** @var array $PLUGIN_HOOKS */
     global $PLUGIN_HOOKS;
 
     if (Session::haveRight('entity', UPDATE)) {
-        Plugin::registerClass('PluginCostsEntity', ['addtabon' => 'Entity']);
+        Plugin::registerClass(PluginCostsEntity::class, ['addtabon' => 'Entity']);
     }
 
     if (Session::haveRightsOr("config", [READ, UPDATE])) {
-        Plugin::registerClass('PluginCostsConfig', ['addtabon' => 'Config']);
+        Plugin::registerClass(PluginCostsConfig::class, ['addtabon' => 'Config']);
 
         $PLUGIN_HOOKS['config_page']['costs'] = 'front/config.form.php';
     }
 
     $PLUGIN_HOOKS[Hooks::CSRF_COMPLIANT]['costs'] = true;
 
-    $PLUGIN_HOOKS[Hooks::POST_ITEM_FORM]['costs'] = ['PluginCostsTicket','postItemForm'];
+    $PLUGIN_HOOKS[Hooks::POST_ITEM_FORM]['costs'] = [PluginCostsTicket::class,'postItemForm'];
 
     $PLUGIN_HOOKS[Hooks::PRE_ITEM_UPDATE]['costs'] = [
-        Ticket::class       => ['PluginCostsTicket','ticketUpdate'],
-        TicketTask::class   => ['PluginCostsTask','preTaskUpdate']
+        Ticket::class       => [PluginCostsTicket::class, 'ticketUpdate'],
+        TicketTask::class   => [PluginCostsTask::class, 'preTaskUpdate']
     ];
 
     $PLUGIN_HOOKS[Hooks::ITEM_ADD]['costs'] = [
-        Ticket::class       => ['PluginCostsTicket','ticketAdd'],
-        TicketTask::class   => ['PluginCostsTask','taskAdd']
+        Ticket::class       => [PluginCostsTicket::class, 'ticketAdd'],
+        TicketTask::class   => [PluginCostsTask::class, 'taskAdd']
     ];
 
     $PLUGIN_HOOKS[Hooks::ITEM_PURGE]['costs'] = [
-        TicketTask::class   => ['PluginCostsTask','taskPurge']
+        TicketTask::class   => [PluginCostsTask::class, 'taskPurge']
     ];
 }

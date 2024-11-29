@@ -118,6 +118,7 @@ class PluginCostsTicket extends CommonDBTM
      */
     public function getFromDBByTicket($ticket_id): bool
     {
+        /** @var \DBmysql $DB */
         global $DB;
 
         $req = $DB->request(['FROM' => self::getTable(),'WHERE' => ['tickets_id' => $ticket_id]]);
@@ -152,47 +153,50 @@ class PluginCostsTicket extends CommonDBTM
      */
     public static function postItemForm($params = []): void
     {
-        if (Session::getCurrentInterface() != "helpdesk") {
-            $item = $params['item'];
-            if (!is_array($item)) {
-                if ($item->getType() == Ticket::getType()) {
-                    if ($item->canUpdate()) {
-                        $ticket_id = $item->getID();
-                        if ($ticket_id == 0) {
-                            $cost_config = new PluginCostsEntity();
-                            $cost_config->getFromDBByEntity($item->input['entities_id']);
-                            if ($cost_config->fields['inheritance']) {
-                                $parent_id = PluginCostsEntity::getConfigID($item->fields['entities_id']);
-                                $cost_config->getFromDB($parent_id);
-                            }
-                            $billable = $cost_config->fields['auto_cost'];
-                        } else {
-                            $cost_ticket = new self();
-                            $cost_ticket->getFromDBByTicket($ticket_id);
-                            $billable = $cost_ticket->fields['billable'];
-                        }
+        $interface = Session::getCurrentInterface();
+        if ($interface && $interface != "helpdesk") {
+            $item = $params['item'] ?? null;
+            if (!$item) {
+                return;
+            }
 
-                        $label_class = 'col-xxl-4';
-                        $input_class = 'col-xxl-8';
-                        if (
-                            version_compare(GLPI_VERSION, '10.0.10', '>=') &&
-                            version_compare(GLPI_VERSION, '10.0.14', '<')
-                        ) {
-                            $label_class = 'col-xxl-5';
-                            $input_class = 'col-xxl-7';
+            if ($item->getType() == Ticket::getType()) {
+                if ($item->canUpdate()) {
+                    $ticket_id = $item->getID();
+                    if ($ticket_id == 0) {
+                        $cost_config = new PluginCostsEntity();
+                        $cost_config->getFromDBByEntity($item->input['entities_id']);
+                        if ($cost_config->fields['inheritance']) {
+                            $parent_id = PluginCostsEntity::getConfigID($item->fields['entities_id']);
+                            $cost_config->getFromDB($parent_id);
                         }
-
-                        $template = "@costs/billable_dropdown.html.twig";
-                        $template_options = [
-                            'billable' => $billable,
-                            'options'  => [
-                                'field_class' => 'col-12',
-                                'label_class' => $label_class,
-                                'input_class' => $input_class,
-                            ]
-                        ];
-                        TemplateRenderer::getInstance()->display($template, $template_options);
+                        $billable = $cost_config->fields['auto_cost'];
+                    } else {
+                        $cost_ticket = new self();
+                        $cost_ticket->getFromDBByTicket($ticket_id);
+                        $billable = $cost_ticket->fields['billable'];
                     }
+
+                    $label_class = 'col-xxl-4';
+                    $input_class = 'col-xxl-8';
+                    if (
+                        version_compare(GLPI_VERSION, '10.0.10', '>=') &&
+                        version_compare(GLPI_VERSION, '10.0.14', '<')
+                    ) {
+                        $label_class = 'col-xxl-5';
+                        $input_class = 'col-xxl-7';
+                    }
+
+                    $template = "@costs/billable_dropdown.html.twig";
+                    $template_options = [
+                        'billable' => $billable,
+                        'options'  => [
+                            'field_class' => 'col-12',
+                            'label_class' => $label_class,
+                            'input_class' => $input_class,
+                        ]
+                    ];
+                    TemplateRenderer::getInstance()->display($template, $template_options);
                 }
             }
         }
@@ -229,13 +233,14 @@ class PluginCostsTicket extends CommonDBTM
      */
     public static function ticketUpdate(Ticket $ticket): void
     {
-        if (array_key_exists('cost_billable', $ticket->input)) {
+        if (isset($ticket->input) && array_key_exists('cost_billable', $ticket->input)) {
             $cost_ticket = new self();
-            $cost_ticket->getFromDBByTicket($ticket->fields['id']);
-            $cost_ticket->update([
-                'billable'  => $ticket->input['cost_billable'],
-                'id'        => $cost_ticket->getID()
-            ]);
+            if ($cost_ticket->getFromDBByTicket($ticket->fields['id'])) {
+                $cost_ticket->update([
+                    'billable'  => $ticket->input['cost_billable'],
+                    'id'        => $cost_ticket->getID()
+                ]);
+            }
         }
     }
 
@@ -247,6 +252,7 @@ class PluginCostsTicket extends CommonDBTM
      */
     public static function install(Migration $migration): void
     {
+        /** @var \DBmysql $DB */
         global $DB;
 
         $default_charset = DBConnection::getDefaultCharset();
@@ -265,8 +271,9 @@ class PluginCostsTicket extends CommonDBTM
                     PRIMARY KEY (`id`),
                     KEY `tickets_id` (`tickets_id`),
                     KEY `billable` (`billable`)
-                ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-            $DB->query($query) or die($DB->error());
+                ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
+                COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            $DB->request($query) or die($DB->error());
         } else {
             if ($DB->fieldExists($table, 'costs_id')) {
                 if (!$DB->tableExists('glpi_plugin_costs_tasks')) {
@@ -305,7 +312,7 @@ class PluginCostsTicket extends CommonDBTM
                 $migration->dropKey($table, 'costs_id');
 
                 $clear_data = "TRUNCATE TABLE $table";
-                $DB->query($clear_data);
+                $DB->request($clear_data);
             }
         }
         $migration->executeMigration();

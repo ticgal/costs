@@ -233,7 +233,7 @@ class PluginCostsTicket extends CommonDBTM
      */
     public static function ticketUpdate(Ticket $ticket): void
     {
-        if (array_key_exists('cost_billable', $ticket->input)) {
+        if (isset($ticket->input) && array_key_exists('cost_billable', $ticket->input)) {
             $cost_ticket = new self();
             if ($cost_ticket->getFromDBByTicket($ticket->fields['id'])) {
                 $cost_ticket->update([

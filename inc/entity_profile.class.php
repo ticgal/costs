@@ -34,10 +34,6 @@
  * -------------------------------------------------------------------------
  */
 
-if (!defined('GLPI_ROOT')) {
-    die("Sorry. You can't access directly to this file");
-}
-
 class PluginCostsEntity_Profile extends CommonDBRelation
 {
     public static $itemtype_1 = 'Entity';
@@ -48,10 +44,10 @@ class PluginCostsEntity_Profile extends CommonDBRelation
     /**
      * showForEntity
      *
-     * @param  mixed $entity
-     * @return void
+     * @param  Entity $entity
+     * @return bool
      */
-    public static function showForEntity(Entity $entity): void
+    public static function showForEntity(Entity $entity): bool
     {
         $instID = $entity->fields['id'];
 
@@ -136,15 +132,17 @@ class PluginCostsEntity_Profile extends CommonDBRelation
             Html::closeForm();
         }
         echo "</div>";
+
+        return true;
     }
 
     /**
      * showForParent
      *
      * @param  mixed $entities_id
-     * @return void
+     * @return bool
      */
-    public static function showForParent($entities_id): void
+    public static function showForParent($entities_id): bool
     {
         echo "<div class='spaced'>";
         echo "<table class='tab_cadre_fixehov'>";
@@ -171,16 +169,18 @@ class PluginCostsEntity_Profile extends CommonDBRelation
         echo $header_begin . $header_bottom . $header_end;
         echo "</table>";
         echo "</div>";
+
+        return true;
     }
 
     /**
      * getUsedProfiles
      *
-     * @param  mixed $entities_id
-     * @param  mixed $only_id
+     * @param  int $entities_id
+     * @param  bool $only_id
      * @return array
      */
-    public static function getUsedProfiles($entities_id, $only_id = false): array
+    public static function getUsedProfiles(int $entities_id, bool $only_id = false): array
     {
         /** @var \DBmysql $DB */
         global $DB;
@@ -209,7 +209,7 @@ class PluginCostsEntity_Profile extends CommonDBRelation
     /**
      * install
      *
-     * @param  mixed $migration
+     * @param  Migration $migration
      * @return void
      */
     public static function install(Migration $migration): void
@@ -234,14 +234,14 @@ class PluginCostsEntity_Profile extends CommonDBRelation
 				UNIQUE KEY `unicity` (`entities_id`,`profiles_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
             COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-            $DB->request($query) or die($DB->error());
+            $DB->doQueryOrDie($query, $DB->error());
         }
     }
 
     /**
      * unistall
      *
-     * @param  mixed $migration
+     * @param  Migration $migration
      * @return void
      */
     public static function unistall(Migration $migration): void

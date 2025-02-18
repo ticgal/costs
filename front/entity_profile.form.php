@@ -38,6 +38,10 @@ use Glpi\Event;
 
 include('../../../inc/includes.php');
 
+if (!Plugin::isPluginActive('costs')) {
+    Html::displayNotFoundError();
+}
+
 Session::checkLoginUser();
 
 $entity_profile = new PluginCostsEntity_Profile();

@@ -34,13 +34,17 @@
 
 {% import 'components/form/fields_macros.html.twig' as fields %}
 
+{% if options is not defined %}
+{% set options = {} %}
+{% endif %}
+
 <div id="billeable_dropdown">
 
     {{ fields.dropdownYesNo(
-    'cost_billable',
-    billable,
-    __('Billable','cost'),
-    options
+        'cost_billable',
+        billable,
+        __('Billable','cost'),
+        options
     ) }}
 
 </div>

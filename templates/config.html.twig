@@ -35,42 +35,23 @@
 {% import 'components/form/fields_macros.html.twig' as fields %}
 {% import 'components/form/buttons.html.twig' as buttons %}
 
-{% set no_header = no_header|default(not item.isNewItem() and not _get._in_modal|default(false)) %}
-{% set bg = '' %}
-{% if item.isDeleted() %}
-{% set bg = 'asset-deleted' %}
+{% if options is not defined %}
+{% set options = {} %}
 {% endif %}
 
-<div class="asset {{ bg }}">
+{{ include('components/form/header.html.twig', {'in_twig': true, 'no_header': true}) }}
 
-    {{ include('components/form/header.html.twig', {'in_twig': true, 'no_header': true}) }}
-    {% set params = params ?? [] %}
+<div class="row">
+    <div class="row ps-4">
 
-    <div class="card-body d-flex flex-wrap">
-        <div class="col-12 col-xxl-12 flex-column">
-            <div class="d-flex flex-row flex-wrap flex-xl-nowrap">
-                <div class="row flex-row align-items-start flex-grow-1">
-                    <div class="row flex-row">
-                        <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}" />
-                        <input type="hidden" name="id" value="{{item.fields['id']}}" />
+        {{ fields.dropdownYesNo(
+            'taskdescription',
+            item.fields['taskdescription'],
+            __("Add task description on cost", "cost"),
+            options
+        ) }}
 
-                        <div class="d-flex flex-wrap">
-
-                            {% if item.isfield('taskdescription') %}
-                            {{ fields.dropdownYesNo(
-                            'taskdescription',
-                            item.fields['taskdescription'],
-                            __("Add task description on cost", "cost")
-                            ) }}
-                            {% endif %}
-
-                        </div>
-
-                    </div> {# .row #}
-                </div> {# .row #}
-            </div> {# .flex-row #}
-        </div> {# .flex-column #}
-    </div> {# .flex-wrap #}
-
-    {{ include('components/form/buttons.html.twig') }}
+    </div>
 </div>
+
+{{ include('components/form/buttons.html.twig') }}

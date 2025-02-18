@@ -41,10 +41,7 @@ class PluginCostsTask extends CommonDBTM
     public static $rightname = 'task';
 
     /**
-     * getTypeName
-     *
-     * @param  mixed $nb
-     * @return string
+     * {@inheritdoc}
      */
     public static function getTypeName($nb = 0): string
     {
@@ -54,7 +51,7 @@ class PluginCostsTask extends CommonDBTM
     /**
      * taskAdd
      *
-     * @param  mixed $task
+     * @param  TicketTask $task
      * @return void
      */
     public static function taskAdd(TicketTask $task): void
@@ -122,7 +119,7 @@ class PluginCostsTask extends CommonDBTM
     /**
      * preTaskUpdate
      *
-     * @param  mixed $task
+     * @param  TicketTask $task
      * @return void
      */
     public static function preTaskUpdate(TicketTask $task): void
@@ -257,11 +254,12 @@ class PluginCostsTask extends CommonDBTM
     /**
      * taskPurge
      *
-     * @param  mixed $task
+     * @param  TicketTask $task
      * @return void
      */
     public static function taskPurge(TicketTask $task): void
     {
+        /** @var \DBmysql $DB */
         global $DB;
 
         $query = [
@@ -298,11 +296,12 @@ class PluginCostsTask extends CommonDBTM
     /**
      * install
      *
-     * @param  mixed $migration
+     * @param  Migration $migration
      * @return void
      */
     public static function install(Migration $migration): void
     {
+        /** @var \DBmysql $DB */
         global $DB;
 
         $default_charset    = DBConnection::getDefaultCharset();
@@ -322,7 +321,7 @@ class PluginCostsTask extends CommonDBTM
                 KEY `costs_id` (`costs_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
             COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-            $DB->query($query) or die($DB->error());
+            $DB->doQueryOrDie($query, $DB->error());
         } else {
             $migration->changeField($table, 'costs_id', 'costs_id', 'fkey');
         }

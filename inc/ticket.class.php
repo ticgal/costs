@@ -41,10 +41,7 @@ class PluginCostsTicket extends CommonDBTM
     public static $rightname = 'ticket';
 
     /**
-     * getTypeName
-     *
-     * @param  mixed $nb
-     * @return string
+     * {@inheritdoc}
      */
     public static function getTypeName($nb = 0): string
     {
@@ -83,6 +80,7 @@ class PluginCostsTicket extends CommonDBTM
      */
     public static function deleteOldCosts($ID): void
     {
+        /** @var \DBmysql $DB */
         global $DB;
 
         $query = [
@@ -100,10 +98,10 @@ class PluginCostsTicket extends CommonDBTM
     /**
      * isBillable
      *
-     * @param  mixed $ticket_id
-     * @return boolean
+     * @param  int $ticket_id
+     * @return bool
      */
-    public static function isBillable($ticket_id): bool
+    public static function isBillable(int $ticket_id): bool
     {
         $cost_ticket = new self();
         $cost_ticket->getFromDBByTicket($ticket_id);
@@ -113,10 +111,10 @@ class PluginCostsTicket extends CommonDBTM
     /**
      * getFromDBByTicket
      *
-     * @param  mixed $ticket_id
+     * @param  int $ticket_id
      * @return bool
      */
-    public function getFromDBByTicket($ticket_id): bool
+    public function getFromDBByTicket(int $ticket_id): bool
     {
         /** @var \DBmysql $DB */
         global $DB;
@@ -180,8 +178,10 @@ class PluginCostsTicket extends CommonDBTM
                     $label_class = 'col-xxl-4';
                     $input_class = 'col-xxl-8';
                     if (
-                        version_compare(GLPI_VERSION, '10.0.10', '>=') &&
-                        version_compare(GLPI_VERSION, '10.0.14', '<')
+                        /** @phpstan-ignore-next-line */
+                        version_compare(GLPI_VERSION, '10.0.10', '>=')
+                        /** @phpstan-ignore-next-line */
+                        && version_compare(GLPI_VERSION, '10.0.14', '<')
                     ) {
                         $label_class = 'col-xxl-5';
                         $input_class = 'col-xxl-7';
@@ -205,7 +205,7 @@ class PluginCostsTicket extends CommonDBTM
     /**
      * ticketAdd
      *
-     * @param  mixed $ticket
+     * @param  Ticket $ticket
      * @return void
      */
     public static function ticketAdd(Ticket $ticket): void
@@ -228,12 +228,12 @@ class PluginCostsTicket extends CommonDBTM
     /**
      * ticketUpdate
      *
-     * @param  mixed $ticket
+     * @param  Ticket $ticket
      * @return void
      */
     public static function ticketUpdate(Ticket $ticket): void
     {
-        if (isset($ticket->input) && array_key_exists('cost_billable', $ticket->input)) {
+        if (is_array($ticket->input) && array_key_exists('cost_billable', $ticket->input)) {
             $cost_ticket = new self();
             if ($cost_ticket->getFromDBByTicket($ticket->fields['id'])) {
                 $cost_ticket->update([
@@ -247,7 +247,7 @@ class PluginCostsTicket extends CommonDBTM
     /**
      * install
      *
-     * @param  mixed $migration
+     * @param  Migration $migration
      * @return void
      */
     public static function install(Migration $migration): void
@@ -273,7 +273,7 @@ class PluginCostsTicket extends CommonDBTM
                     KEY `billable` (`billable`)
                 ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
                 COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-            $DB->request($query) or die($DB->error());
+            $DB->doQueryOrDie($query, $DB->error());
         } else {
             if ($DB->fieldExists($table, 'costs_id')) {
                 if (!$DB->tableExists('glpi_plugin_costs_tasks')) {

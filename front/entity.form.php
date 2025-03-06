@@ -36,6 +36,10 @@
 
 include('../../../inc/includes.php');
 
+if (!Plugin::isPluginActive('costs')) {
+    Html::displayNotFoundError();
+}
+
 Session::haveRight("entity", UPDATE);
 
 $Entity             = new Entity();

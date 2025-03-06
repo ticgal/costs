@@ -1,6 +1,10 @@
 # Costs
 The cost plugin for GLPI
 
+## [3.0.6] - 2024-11-29
+## Fixed
+- Task content as cost comment, cleaning tags and length control #26862
+
 ## 3.0.5 - 2024-11-29
 ## Bugfixes
 - Avoid errors with better conditions #25572

@@ -36,12 +36,18 @@
 
 include("../../../inc/includes.php");
 
+if (!Plugin::isPluginActive('costs')) {
+    Html::displayNotFoundError();
+}
+
 $config = new PluginCostsConfig();
 if (isset($_POST["update"])) {
     $config->check($_POST['id'], UPDATE);
     $config->update($_POST);
     Html::back();
 }
+/** @var array $CFG_GLPI */
+global $CFG_GLPI;
 
 $redirect = $CFG_GLPI["root_doc"] . "/front/config.form.php";
 $redirect .= "?forcetab=" . urlencode('PluginCostsConfig$1');

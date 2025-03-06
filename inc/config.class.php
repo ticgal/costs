@@ -36,16 +36,15 @@
 
 use Glpi\Application\View\TemplateRenderer;
 
-if(!defined('GLPI_ROOT')) {
-    die("Sorry. You can't access directly to this file");
-}
-
 class PluginCostsConfig extends CommonDBTM
 {
     public static $rightname = 'config';
 
     private static $instance = null;
 
+    /**
+     * {@inheritdoc}
+     */
     public function __construct()
     {
         /** @var \DBmysql $DB */
@@ -56,10 +55,8 @@ class PluginCostsConfig extends CommonDBTM
     }
 
     /**
-    * Summary of getTypeName
-    * @param mixed $nb plural
-    * @return string
-    */
+     * {@inheritdoc}
+     */
     public static function getTypeName($nb = 0): string
     {
         return __("Costs", "costs");
@@ -68,10 +65,10 @@ class PluginCostsConfig extends CommonDBTM
     /**
      * getInstance
      *
-     * @param  mixed $n
+     * @param  int $n
      * @return PluginCostsConfig
      */
-    public static function getInstance($n = 1): PluginCostsConfig
+    public static function getInstance(int $n = 1): PluginCostsConfig
     {
         if (!isset(self::$instance)) {
             self::$instance = new self();
@@ -86,10 +83,10 @@ class PluginCostsConfig extends CommonDBTM
     /**
      * getConfig
      *
-     * @param  mixed $update
+     * @param  bool $update
      * @return PluginCostsConfig
      */
-    public static function getConfig($update = false): PluginCostsConfig
+    public static function getConfig(bool $update = false): PluginCostsConfig
     {
         static $config = null;
         if (is_null($config)) {
@@ -119,15 +116,11 @@ class PluginCostsConfig extends CommonDBTM
         ];
         TemplateRenderer::getInstance()->display($template, $template_options);
 
-        return false;
+        return true;
     }
 
     /**
-     * getTabNameForItem
-     *
-     * @param  mixed $item
-     * @param  mixed $withtemplate
-     * @return string
+     * {@inheritdoc}
      */
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
     {
@@ -139,26 +132,21 @@ class PluginCostsConfig extends CommonDBTM
     }
 
     /**
-     * displayTabContentForItem
-     *
-     * @param  mixed $item
-     * @param  mixed $tabnum
-     * @param  mixed $withtemplate
-     * @return bool
+     * {@inheritdoc}
      */
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0): bool
     {
         if ($item->getType() == 'Config') {
-            self::showConfigForm($item);
+            return self::showConfigForm();
         }
 
-        return true;
+        return false;
     }
 
     /**
      * install
      *
-     * @param  mixed $migration
+     * @param  Migration $migration
      * @return void
      */
     public static function install(Migration $migration): void
@@ -171,23 +159,20 @@ class PluginCostsConfig extends CommonDBTM
         $default_key_sign   = DBConnection::getDefaultPrimaryKeySignOption();
 
         $table  = self::getTable();
-        $config = new self();
-
         if (!$DB->tableExists($table)) {
             $migration->displayMessage("Installing $table");
-            //Install
-
             $query = "CREATE TABLE `$table` (
-                `id` int {$default_key_sign} NOT NULL auto_increment,
-                `taskdescription` tinyint NOT NULL default '0',
+                `id` INT {$default_key_sign} NOT NULL AUTO_INCREMENT,
+                `taskdescription` TINYINT NOT NULL DEFAULT '0',
                 PRIMARY KEY  (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
             COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            $DB->doQueryOrDie($query, $DB->error());
 
-            $DB->request($query) or die($DB->error());
+            $config = new self();
             $config->add([
-                'id' => 1,
-                'taskdescription' => 0,
+                'id'                => 1,
+                'taskdescription'   => 0,
             ]);
         }
     }

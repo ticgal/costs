@@ -34,19 +34,12 @@
  * -------------------------------------------------------------------------
  */
 
-if (!defined('GLPI_ROOT')) {
-    die("Sorry. You can't access directly to this file");
-}
-
 class PluginCostsEntity extends CommonDBTM
 {
     public static $rightname = 'entity';
 
     /**
-     * getTypeName
-     *
-     * @param  mixed $nb
-     * @return string
+     * {@inheritdoc}
      */
     public static function getTypeName($nb = 0): string
     {
@@ -54,48 +47,38 @@ class PluginCostsEntity extends CommonDBTM
     }
 
     /**
-     * getTabNameForItem
-     *
-     * @param  mixed $item
-     * @param  mixed $withtemplate
-     * @return string
+     * {@inheritdoc}
      */
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
     {
         switch ($item::getType()) {
             case Entity::getType():
                 return self::getTypeName();
-            break;
         }
+
         return '';
     }
 
     /**
-     * displayTabContentForItem
-     *
-     * @param  mixed $item
-     * @param  mixed $tabnum
-     * @param  mixed $withtemplate
-     * @return bool
+     * {@inheritdoc}
      */
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0): bool
     {
         switch ($item::getType()) {
             case Entity::getType():
-                self::displayTabForEntity($item);
-                break;
+                return self::displayTabForEntity($item);
         }
 
-        return true;
+        return false;
     }
 
     /**
      * getFromDBByEntity
      *
-     * @param  mixed $entities_id
+     * @param  int $entities_id
      * @return bool
      */
-    public function getFromDBByEntity($entities_id): bool
+    public function getFromDBByEntity(int $entities_id): bool
     {
         /** @var \DBmysql $DB */
         global $DB;
@@ -120,7 +103,7 @@ class PluginCostsEntity extends CommonDBTM
     /**
      * displayTabForEntity
      *
-     * @param  mixed $entity
+     * @param  Entity $entity
      * @return bool
      */
     public static function displayTabForEntity(Entity $entity): bool
@@ -209,16 +192,16 @@ class PluginCostsEntity extends CommonDBTM
             PluginCostsEntity_Profile::showForParent($cost_config->fields['entities_id']);
         }
 
-        return false;
+        return true;
     }
 
     /**
      * getConfigID
      *
-     * @param  mixed $entities_id
+     * @param  int $entities_id
      * @return int
      */
-    public static function getConfigID($entities_id): int
+    public static function getConfigID(int $entities_id): int
     {
         $config = new self();
         $config->getFromDBByEntity($entities_id);
@@ -227,15 +210,15 @@ class PluginCostsEntity extends CommonDBTM
             if ($entity->getFromDB($entities_id)) {
                 return self::getConfigID($entity->fields['entities_id']);
             }
-        } else {
-            return $config->fields['id'];
         }
+
+        return $config->fields['id'];
     }
 
     /**
      * install
      *
-     * @param  mixed $migration
+     * @param  Migration $migration
      * @return void
      */
     public static function install(Migration $migration): void
@@ -264,7 +247,7 @@ class PluginCostsEntity extends CommonDBTM
                 KEY entities_id (entities_id)
             ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
             COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-            $DB->request($query) or die($DB->error());
+            $DB->doQueryOrDie($query, $DB->error());
         } else {
             if (!$DB->fieldExists($table, 'auto_cost')) {
                 $migration->displayMessage("Upgrading $table");
@@ -283,7 +266,7 @@ class PluginCostsEntity extends CommonDBTM
     /**
      * unistall
      *
-     * @param  mixed $migration
+     * @param  Migration $migration
      * @return void
      */
     public static function unistall(Migration $migration): void

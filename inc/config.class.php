@@ -1,138 +1,179 @@
 <?php
 
-if(!defined('GLPI_ROOT')){
-	die("Sorry. You can't access directly to this file");
-}
+/**
+ * -------------------------------------------------------------------------
+ * Costs plugin for GLPI
+ * Copyright (C) 2018-2024 by the TICgal Team.
+ *
+ * https://github.com/ticgal/costs
+ * -------------------------------------------------------------------------
+ * LICENSE
+ *
+ * This file is part of the Costs plugin.
+ *
+ * Costs plugin is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Costs plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Costs. If not, see <http://www.gnu.org/licenses/>.
+ * -------------------------------------------------------------------------
+ * @package   Costs
+ * @author    the TICgal team
+ * @copyright Copyright (c) 2018-2024 TICgal team
+ * @license   AGPL License 3.0 or (at your option) any later version
+ *             http://www.gnu.org/licenses/agpl-3.0-standalone.html
+ * @link      https://tic.gal
+ * @since     2018
+ * -------------------------------------------------------------------------
+ */
 
-class PluginCostsConfig extends CommonDBTM {
-	static private $_instance = null;
+use Glpi\Application\View\TemplateRenderer;
 
-	public function __construct() {
-		global $DB;
-		if ($DB->tableExists(self::getTable())) {
-			$this->getFromDB(1);
-		}
-	}
-	/**
-	* Summary of canCreate
-	* @return boolean
-	*/
-	static function canCreate() {
-		return Session::haveRight('config', UPDATE);
-	}
+class PluginCostsConfig extends CommonDBTM
+{
+    public static $rightname = 'config';
 
-	/**
-	* Summary of canView
-	* @return boolean
-	*/
-	static function canView() {
-		return Session::haveRight('config', READ);
-	}
+    private static $instance = null;
 
-	/**
-	* Summary of canUpdate
-	* @return boolean
-	*/
-	static function canUpdate() {
-		return Session::haveRight('config', UPDATE);
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct()
+    {
+        /** @var \DBmysql $DB */
+        global $DB;
+        if ($DB->tableExists(self::getTable())) {
+            $this->getFromDB(1);
+        }
+    }
 
-	/**
-	* Summary of getTypeName
-	* @param mixed $nb plural
-	* @return mixed
-	*/
-	static function getTypeName($nb = 0) {
-		return __("Costs", "costs");
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public static function getTypeName($nb = 0): string
+    {
+        return __("Costs", "costs");
+    }
 
-	/**
-	* Summary of getInstance
-	* @return PluginProcessmakerConfig
-	*/
-	static function getInstance() {
+    /**
+     * getInstance
+     *
+     * @param  int $n
+     * @return PluginCostsConfig
+     */
+    public static function getInstance(int $n = 1): PluginCostsConfig
+    {
+        if (!isset(self::$instance)) {
+            self::$instance = new self();
+            if (!self::$instance->getFromDB($n)) {
+                self::$instance->getEmpty();
+            }
+        }
 
-		if (!isset(self::$_instance)) {
-			self::$_instance = new self();
-			if (!self::$_instance->getFromDB(1)) {
-				self::$_instance->getEmpty();
-			}
-		}
-		return self::$_instance;
-	}
+        return self::$instance;
+    }
 
-	public static function getConfig($update = false) {
-		static $config = null;
-		if (is_null($config)) {
-			$config = new self();
-		}
-		if ($update) {
-			$config->getFromDB(1);
-		}
-		return $config;
-	}
+    /**
+     * getConfig
+     *
+     * @param  bool $update
+     * @return PluginCostsConfig
+     */
+    public static function getConfig(bool $update = false): PluginCostsConfig
+    {
+        static $config = null;
+        if (is_null($config)) {
+            $config = new self();
+        }
+        if ($update) {
+            $config->getFromDB(1);
+        }
 
-	/**
-	* Summary of showConfigForm
-	* @param mixed $item is the config
-	* @return boolean
-	*/
-	static function showConfigForm() {
-		global $CFG_GLPI;
+        return $config;
+    }
 
-		$config = new self();
-		$config->getFromDB(1);
+    /**
+    * Summary of showConfigForm
+    *
+    * @return boolean
+    */
+    public static function showConfigForm(): bool
+    {
+        $config = self::getInstance();
 
-		$config->showFormHeader(['colspan' => 4]);
+        $plugin = new Plugin();
+        $template = "@costs/config.html.twig";
+        $template_options = [
+            'item'      => $config,
+            'credit'    => ($plugin->isInstalled('credit') && $plugin->isActivated('credit')),
+        ];
+        TemplateRenderer::getInstance()->display($template, $template_options);
 
-		echo "<tr class='tab_bg_1'>";
-		echo "<td >".__("Add task description on cost", "cost")."</td><td >";
-		Dropdown::showYesNo("taskdescription", $config->fields["taskdescription"]);
-		echo "</td></tr>\n";
+        return true;
+    }
 
-		$config->showFormButtons(['candel'=>false]);
+    /**
+     * {@inheritdoc}
+     */
+    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
+    {
+        if ($item->getType() == 'Config') {
+            return __("Costs", "costs");
+        }
 
-		return false;
-	}
+        return '';
+    }
 
-	function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
-		global $LANG;
+    /**
+     * {@inheritdoc}
+     */
+    public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0): bool
+    {
+        if ($item->getType() == 'Config') {
+            return self::showConfigForm();
+        }
 
-		if ($item->getType()=='Config') {
-			return __("Costs", "costs");
-		}
-		return '';
-	}
+        return false;
+    }
 
-	static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
+    /**
+     * install
+     *
+     * @param  Migration $migration
+     * @return void
+     */
+    public static function install(Migration $migration): void
+    {
+        /** @var \DBmysql $DB */
+        global $DB;
 
-		if ($item->getType()=='Config') {
-			self::showConfigForm($item);
-		}
-		return true;
-	}
+        $default_charset    = DBConnection::getDefaultCharset();
+        $default_collation  = DBConnection::getDefaultCollation();
+        $default_key_sign   = DBConnection::getDefaultPrimaryKeySignOption();
 
-	public static function install(Migration $migration) {
-		global $DB;
+        $table  = self::getTable();
+        if (!$DB->tableExists($table)) {
+            $migration->displayMessage("Installing $table");
+            $query = "CREATE TABLE `$table` (
+                `id` INT {$default_key_sign} NOT NULL AUTO_INCREMENT,
+                `taskdescription` TINYINT NOT NULL DEFAULT '0',
+                PRIMARY KEY  (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
+            COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            $DB->doQueryOrDie($query, $DB->error());
 
-		$table  = self::getTable();
-		$config = new self();
-
-		if (!$DB->tableExists($table)) {
-			$migration->displayMessage("Installing $table");
-			//Install
-
-			$query = "CREATE TABLE `$table` (
-				`id` int(11) NOT NULL auto_increment,
-				`taskdescription` tinyint(1) NOT NULL default '0',
-				PRIMARY KEY  (`id`)
-			) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
-
-			$DB->query($query) or die ($DB->error());
-			$config->add([
-				'id' => 1,
-				'taskdescription' => 0,
-			]);
-		}
-	}
+            $config = new self();
+            $config->add([
+                'id'                => 1,
+                'taskdescription'   => 0,
+            ]);
+        }
+    }
 }

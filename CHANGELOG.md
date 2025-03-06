@@ -1,5 +1,34 @@
 # Costs
 The cost plugin for GLPI
+
+## [3.0.6] - 2024-11-29
+## Fixed
+- Task content as cost comment, cleaning tags and length control #26862
+
+## 3.0.5 - 2024-11-29
+## Bugfixes
+- Avoid errors with better conditions #25572
+
+## 3.0.4 - 2024-06-10
+## Bugfixes
+- Fix strong typing definition #22663
+
+## 3.0.3 - 2024-02-05
+## Bugfixes
+- Fix install warning for unsigned integers #20073
+
+## 3.0.2 - 2023-07-13
+## Bugfixes
+- Billable dropdown update #12572
+
+## 3.0.1 - 2022-07-27
+## Bugfixes
+- Localazy integration #10666
+
+## 3.0.0 - 2022-07-07
+### Features
+- GLPI 10 compatibility #10398
+
 ## 2.2.3
 ### Bugfixes
 - Don't show Billable to self-service users.

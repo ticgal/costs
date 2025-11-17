@@ -37,7 +37,7 @@
 include("../../../inc/includes.php");
 
 if (!Plugin::isPluginActive('costs')) {
-   die();
+    die();
 }
 
 $config = new PluginCostsConfig();

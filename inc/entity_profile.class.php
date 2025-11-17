@@ -34,7 +34,7 @@
  * -------------------------------------------------------------------------
  */
 
-class PluginCostsEntity_Profile extends CommonDBRelation
+class PluginCostsEntityProfile extends CommonDBRelation
 {
     public static $itemtype_1 = 'Entity';
     public static $items_id_1 = 'entities_id';

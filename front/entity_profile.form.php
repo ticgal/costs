@@ -44,7 +44,7 @@ if (!Plugin::isPluginActive('costs')) {
 
 Session::checkLoginUser();
 
-$entity_profile = new PluginCostsEntity_Profile();
+$entity_profile = new PluginCostsEntityProfile();
 if (isset($_POST["add"])) {
     if ($entity_profile->add($_POST)) {
         Event::log(

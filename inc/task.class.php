@@ -70,7 +70,7 @@ class PluginCostsTask extends CommonDBTM
                         $cost_config->getFromDB($parent_id);
                     }
 
-                    $entity_profile = new PluginCostsEntity_Profile();
+                    $entity_profile = new PluginCostsEntityProfile();
                     $user = new User();
                     $user->getFromDB($task->fields['users_id_tech']);
                     if (
@@ -165,7 +165,7 @@ class PluginCostsTask extends CommonDBTM
                     $cost_config->getFromDB($parent_id);
                 }
 
-                $entity_profile = new PluginCostsEntity_Profile();
+                $entity_profile = new PluginCostsEntityProfile();
                 $user = new User();
                 $user->getFromDB($task->fields['users_id_tech']);
                 if (
@@ -272,7 +272,7 @@ class PluginCostsTask extends CommonDBTM
         $req = $DB->request($query);
         foreach ($req as $row) {
             $cost = new TicketCost();
-            $cost->delete(['id' => $row['costs_id']], 1);
+            $cost->delete(['id' => $row['costs_id']]);
             $taskcost = new self();
             $taskcost->deleteByCriteria(['id' => $row['id']]);
         }

@@ -38,184 +38,190 @@ if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
 }
 
-class PluginCostsEntity extends CommonDBTM {
+class PluginCostsEntity extends CommonDBTM
+{
 
    public static $rightname = 'entity';
 
-   static function getTypeName($nb = 0) {
+   static function getTypeName($nb = 0)
+   {
       return __('Costs', 'Costs');
    }
 
-   function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
+   function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
+   {
       switch ($item::getType()) {
          case Entity::getType():
             return self::getTypeName();
-         break;
       }
       return '';
    }
 
-   static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
-      switch ($item::getType()) {
-         case Entity::getType():
-            self::displayTabForEntity($item);
-            break;
+   static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
+   {
+      if ($item instanceof Entity) {
+         self::displayTabForEntity($item);
+         return true;
       }
+      return false;
    }
 
-   public function getFromDBByEntity($entities_id) {
+   public function getFromDBByEntity($entities_id)
+   {
       global $DB;
 
-      $req=$DB->request(['FROM' => self::getTable(),'WHERE' => ['entities_id' => $entities_id]]);
+      $req = $DB->request(['FROM' => self::getTable(), 'WHERE' => ['entities_id' => $entities_id]]);
       if (count($req)) {
-         foreach ($req as $result){
-            $this->fields=$result;
+         foreach ($req as $result) {
+            $this->fields = $result;
          }
          return true;
       } else {
-         if ($entities_id>0) {
-            $id=$this->add(['entities_id'=>$entities_id,'inheritance'=>1]);
-         }else{
-            $id=$this->add(['entities_id'=>$entities_id]);
+         if ($entities_id > 0) {
+            $id = $this->add(['entities_id' => $entities_id, 'inheritance' => 1]);
+         } else {
+            $id = $this->add(['entities_id' => $entities_id]);
          }
          $this->getFromDB($id);
          return false;
       }
    }
 
-   static function displayTabForEntity(Entity $entity) {
+   static function displayTabForEntity(Entity $entity)
+   {
       global $DB, $CFG_GLPI;
 
       $ID = $entity->getField('id');
       if (!$entity->can($ID, READ)) {
          return false;
       }
-      $cost_config=new self();
+      $cost_config = new self();
       $cost_config->getFromDBByEntity($ID);
-      $inheritance=$cost_config->fields['inheritance'];
-      $config_id=$cost_config->fields['id'];
+      $inheritance = $cost_config->fields['inheritance'];
+      $config_id = $cost_config->fields['id'];
 
       $rand = mt_rand();
-      $out= "<form name='costentity_form$rand' id='costentity_form$rand' method='post' action='";
-      $out.= self::getFormUrl()."'>";
-      $out.= "<table class='tab_cadre_fixe'>";
+      $out = "<form name='costentity_form$rand' id='costentity_form$rand' method='post' action='";
+      $out .= self::getFormUrl() . "'>";
+      $out .= "<table class='tab_cadre_fixe'>";
 
-      if ($ID>0) {
-         $out.="<tr class='tab_bg_1'>";
-         $out.="<td style='width: 400px;'>".__('Inheritance of the parent entity')."</td><td>";
-         $out.=Dropdown::showYesNo("inheritance", $cost_config->fields['inheritance'], -1, ['display' => false,'use_checkbox' => true]);
-         $out.="</td></tr>\n";
+      if ($ID > 0) {
+         $out .= "<tr class='tab_bg_1'>";
+         $out .= "<td style='width: 400px;'>" . __('Inheritance of the parent entity') . "</td><td>";
+         $out .= Dropdown::showYesNo("inheritance", $cost_config->fields['inheritance'], -1, ['display' => false, 'use_checkbox' => true]);
+         $out .= "</td></tr>\n";
       }
 
-      if ($inheritance==1) {
-         $parent_id=self::getConfigID($entity->fields['entities_id']);
+      if ($inheritance == 1) {
+         $parent_id = self::getConfigID($entity->fields['entities_id']);
          $cost_config->getFromDB($parent_id);
-         $out.="<tr class='tab_bg_1'>";
-         $out.="<td>".__('Fixed cost')."</td>";
-         $out.="<td><div style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;display: table;'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>".$cost_config->fields['fixed_cost']."</div>";
-         $out.="</td></tr>\n";
+         $out .= "<tr class='tab_bg_1'>";
+         $out .= "<td>" . __('Fixed cost') . "</td>";
+         $out .= "<td><div style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;display: table;'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>" . $cost_config->fields['fixed_cost'] . "</div>";
+         $out .= "</td></tr>\n";
 
-         $out.="<tr class='tab_bg_1'>";
-         $out.="<td>".__('Time cost')."</td><td>";
-         $out.="<div style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;display: table;'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>".$cost_config->fields['time_cost']."</div>";
-         $out.="</td></tr>\n";
+         $out .= "<tr class='tab_bg_1'>";
+         $out .= "<td>" . __('Time cost') . "</td><td>";
+         $out .= "<div style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;display: table;'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>" . $cost_config->fields['time_cost'] . "</div>";
+         $out .= "</td></tr>\n";
 
-         $out.="<tr class='tab_bg_1'>";
-         $out.="<td>".__('Private task')."</td><td>";
-         $out.="<div style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;display: table;'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>".Dropdown::getYesNo($cost_config->fields['cost_private'])."</div>";
-         $out.="</td></tr>\n";
+         $out .= "<tr class='tab_bg_1'>";
+         $out .= "<td>" . __('Private task') . "</td><td>";
+         $out .= "<div style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;display: table;'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>" . Dropdown::getYesNo($cost_config->fields['cost_private']) . "</div>";
+         $out .= "</td></tr>\n";
 
-         $out.="<tr class='tab_bg_1'>";
-         $out.="<td>".__('Auto billable ticket')."</td><td>";
-         $out.="<div style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;display: table;'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>".Dropdown::getYesNo($cost_config->fields['auto_cost'])."</div>";
-         $out.="</td></tr>\n";
+         $out .= "<tr class='tab_bg_1'>";
+         $out .= "<td>" . __('Auto billable ticket') . "</td><td>";
+         $out .= "<div style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;display: table;'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>" . Dropdown::getYesNo($cost_config->fields['auto_cost']) . "</div>";
+         $out .= "</td></tr>\n";
 
-         $out.="<tr class='tab_bg_1'>";
-         $out.="<td>".__('Default Budget','costs')."</td><td>";
-         $budget= new Budget();
+         $out .= "<tr class='tab_bg_1'>";
+         $out .= "<td>" . __('Default Budget', 'costs') . "</td><td>";
+         $budget = new Budget();
          $budget->getFromDB($cost_config->fields["budgets_id"]);
-         $out.="<div style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;display: table;'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>".$budget->fields["name"]."</div>";
-         $out.="</td></tr>\n";
+         $out .= "<div style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;display: table;'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>" . $budget->fields["name"] . "</div>";
+         $out .= "</td></tr>\n";
+      } else {
+         $out .= "<tr class='tab_bg_1'>";
+         $out .= "<td>" . __('Fixed cost') . "</td><td>";
+         $out .= "<input size='5' step='" . PLUGIN_COSTS_NUMBER_STEP . "' type='number' name='fixed_cost' value='" . $cost_config->fields['fixed_cost'] . "'>";
+         $out .= "</td></tr>\n";
 
-      }else{
-         $out.="<tr class='tab_bg_1'>";
-         $out.="<td>".__('Fixed cost')."</td><td>";
-         $out.="<input size='5' step='".PLUGIN_COSTS_NUMBER_STEP."' type='number' name='fixed_cost' value='".$cost_config->fields['fixed_cost']."'>";
-         $out.="</td></tr>\n";
+         $out .= "<tr class='tab_bg_1'>";
+         $out .= "<td>" . __('Time cost') . "</td><td>";
+         $out .= "<input size='5' step='" . PLUGIN_COSTS_NUMBER_STEP . "' type='number' name='time_cost' value='" . $cost_config->fields['time_cost'] . "'>";
+         $out .= "</td></tr>\n";
 
-         $out.="<tr class='tab_bg_1'>";
-         $out.="<td>".__('Time cost')."</td><td>";
-         $out.="<input size='5' step='".PLUGIN_COSTS_NUMBER_STEP."' type='number' name='time_cost' value='".$cost_config->fields['time_cost']."'>";
-         $out.="</td></tr>\n";
-
-         $out.="<tr class='tab_bg_1'>";
-         $out.="<td>".__('Private task')."</td><td>";
+         $out .= "<tr class='tab_bg_1'>";
+         $out .= "<td>" . __('Private task') . "</td><td>";
          $out .= Dropdown::showYesNo("cost_private", $cost_config->fields['cost_private'], -1, ['display' => false]);
-         $out.="</td></tr>\n";
+         $out .= "</td></tr>\n";
 
-         $out.="<tr class='tab_bg_1'>";
-         $out.="<td>".__('Auto billable ticket')."</td><td>";
+         $out .= "<tr class='tab_bg_1'>";
+         $out .= "<td>" . __('Auto billable ticket') . "</td><td>";
          $out .= Dropdown::showYesNo("auto_cost", $cost_config->fields['auto_cost'], -1, ['display' => false]);
-         $out.="</td></tr>\n";
+         $out .= "</td></tr>\n";
 
-         $out.="<div class='input-group mb-1'>";
-         $out.="<tr class='tab_bg_1'>";
-         $out.="<td>".__('Default Budget','costs')."</td><td>";
-         $out.= Budget::dropdown(["value"=>$cost_config->fields["budgets_id"],"name"=>"budgets_id",'display' => false]);
+         $out .= "<div class='input-group mb-1'>";
+         $out .= "<tr class='tab_bg_1'>";
+         $out .= "<td>" . __('Default Budget', 'costs') . "</td><td>";
+         $out .= Budget::dropdown(["value" => $cost_config->fields["budgets_id"], "name" => "budgets_id", 'display' => false]);
 
-         $out.="</td></tr>\n";
-         $out.="</div>";
+         $out .= "</td></tr>\n";
+         $out .= "</div>";
       }
 
-      $out.="<tr><td>";
-      $out.="<input type='hidden' name='entities_id' value='$ID'>";
-      $out.="</td></tr>\n";
+      $out .= "<tr><td>";
+      $out .= "<input type='hidden' name='entities_id' value='$ID'>";
+      $out .= "</td></tr>\n";
 
-      $out.= "<tr><td class='tab_bg_2 right'>";
-      $out.= "<input type='submit' name='update' value='"._sx('button', 'Update')."' class='submit'>";
-      $out.= "<input type='hidden' name='id' value='".$config_id."'>";
-      $out.= "</td></tr>";
-      $out.= "</table>";
-      $out.= Html::closeForm(false);
+      $out .= "<tr><td class='tab_bg_2 right'>";
+      $out .= "<input type='submit' name='update' value='" . _sx('button', 'Update') . "' class='submit'>";
+      $out .= "<input type='hidden' name='id' value='" . $config_id . "'>";
+      $out .= "</td></tr>";
+      $out .= "</table>";
+      $out .= Html::closeForm(false);
 
       echo $out;
-      
-      if ($inheritance!=1) {
+
+      if ($inheritance != 1) {
          PluginCostsEntity_Profile::showForEntity($entity);
-      }else{
+      } else {
          PluginCostsEntity_Profile::showForParent($cost_config->fields['entities_id']);
       }
 
       return false;
    }
 
-   static function getConfigID($entities_id){
+   static function getConfigID($entities_id)
+   {
 
-      $config=new self();
+      $config = new self();
       $config->getFromDBByEntity($entities_id);
       if ($config->fields['inheritance']) {
-         $entity=new Entity();
+         $entity = new Entity();
          if ($entity->getFromDB($entities_id)) {
             return self::getConfigID($entity->fields['entities_id']);
          }
-      }else{
+      } else {
          return $config->fields['id'];
       }
    }
 
-   static function install(Migration $migration) {
+   static function install(Migration $migration)
+   {
       global $DB;
 
       $default_charset = DBConnection::getDefaultCharset();
       $default_collation = DBConnection::getDefaultCollation();
       $default_key_sign = DBConnection::getDefaultPrimaryKeySignOption();
 
-      $table=self::getTable();
+      $table = self::getTable();
 
       if (!$DB->tableExists($table)) {
          $migration->displayMessage("Installing $table");
 
-         $query="CREATE TABLE IF NOT EXISTS $table (
+         $query = "CREATE TABLE IF NOT EXISTS $table (
          			id int {$default_key_sign} NOT NULL auto_increment,
          			entities_id int {$default_key_sign} NOT NULL DEFAULT '0',
          			fixed_cost float NOT NULL default '0',
@@ -227,8 +233,8 @@ class PluginCostsEntity extends CommonDBTM {
          			PRIMARY KEY (id),
          			KEY entities_id (entities_id)
          		) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-         $DB->query($query) or die($DB->error());
-      }else{
+         $DB->doQuery($query) or die($DB->error());
+      } else {
          if (!$DB->fieldExists($table, 'auto_cost')) {
             $migration->displayMessage("Upgrading $table");
             $migration->addField($table, 'auto_cost', 'boolean');
@@ -243,8 +249,9 @@ class PluginCostsEntity extends CommonDBTM {
       $migration->executeMigration();
    }
 
-   static function unistall(Migration $migration) {
-      $table=self::getTable();
+   static function unistall(Migration $migration)
+   {
+      $table = self::getTable();
       $migration->displayMessage("Uninstalling $table");
       $migration->dropTable($table);
    }

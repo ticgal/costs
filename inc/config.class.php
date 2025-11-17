@@ -1,56 +1,43 @@
 <?php
 
-if(!defined('GLPI_ROOT')){
+if (!defined('GLPI_ROOT')) {
 	die("Sorry. You can't access directly to this file");
 }
 
-class PluginCostsConfig extends CommonDBTM {
+class PluginCostsConfig extends CommonDBTM
+{
 	static private $_instance = null;
 
-	public function __construct() {
+	public function __construct()
+	{
 		global $DB;
 		if ($DB->tableExists(self::getTable())) {
 			$this->getFromDB(1);
 		}
 	}
-	/**
-	* Summary of canCreate
-	* @return boolean
-	*/
-	static function canCreate() {
-		return Session::haveRight('config', UPDATE);
+
+	public static function canCreate(): bool
+	{
+		return Session::haveRightsOr(self::getType(), [CREATE, UPDATE]);
 	}
 
-	/**
-	* Summary of canView
-	* @return boolean
-	*/
-	static function canView() {
-		return Session::haveRight('config', READ);
+	public static function canView(): bool
+	{
+		return Session::haveRightsOr(self::getType(), [READ, UPDATE]);
 	}
 
-	/**
-	* Summary of canUpdate
-	* @return boolean
-	*/
-	static function canUpdate() {
-		return Session::haveRight('config', UPDATE);
+	public static function canUpdate(): bool
+	{
+		return Session::haveRightsOr(self::getType(), [UPDATE]);
 	}
 
-	/**
-	* Summary of getTypeName
-	* @param mixed $nb plural
-	* @return mixed
-	*/
-	static function getTypeName($nb = 0) {
+	static function getTypeName($nb = 0)
+	{
 		return __("Costs", "costs");
 	}
 
-	/**
-	* Summary of getInstance
-	* @return PluginProcessmakerConfig
-	*/
-	static function getInstance() {
+	static function getInstance()
+	{
 
 		if (!isset(self::$_instance)) {
 			self::$_instance = new self();
@@ -61,7 +48,8 @@ class PluginCostsConfig extends CommonDBTM {
 		return self::$_instance;
 	}
 
-	public static function getConfig($update = false) {
+	public static function getConfig($update = false)
+	{
 		static $config = null;
 		if (is_null($config)) {
 			$config = new self();
@@ -72,12 +60,8 @@ class PluginCostsConfig extends CommonDBTM {
 		return $config;
 	}
 
-	/**
-	* Summary of showConfigForm
-	* @param mixed $item is the config
-	* @return boolean
-	*/
-	static function showConfigForm() {
+	static function showConfigForm()
+	{
 		global $CFG_GLPI;
 
 		$config = new self();
@@ -86,33 +70,36 @@ class PluginCostsConfig extends CommonDBTM {
 		$config->showFormHeader(['colspan' => 4]);
 
 		echo "<tr class='tab_bg_1'>";
-		echo "<td >".__("Add task description on cost", "cost")."</td><td >";
+		echo "<td >" . __("Add task description on cost", "cost") . "</td><td >";
 		Dropdown::showYesNo("taskdescription", $config->fields["taskdescription"]);
 		echo "</td></tr>\n";
 
-		$config->showFormButtons(['candel'=>false]);
+		$config->showFormButtons(['candel' => false]);
 
 		return false;
 	}
 
-	function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
+	function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
+	{
 		global $LANG;
 
-		if ($item->getType()=='Config') {
+		if ($item->getType() == 'Config') {
 			return __("Costs", "costs");
 		}
 		return '';
 	}
 
-	static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
+	static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
+	{
 
-		if ($item->getType()=='Config') {
-			self::showConfigForm($item);
+		if ($item->getType() == 'Config') {
+			self::showConfigForm();
 		}
 		return true;
 	}
 
-	public static function install(Migration $migration) {
+	public static function install(Migration $migration)
+	{
 		global $DB;
 
 		$default_charset = DBConnection::getDefaultCharset();
@@ -124,7 +111,6 @@ class PluginCostsConfig extends CommonDBTM {
 
 		if (!$DB->tableExists($table)) {
 			$migration->displayMessage("Installing $table");
-			//Install
 
 			$query = "CREATE TABLE `$table` (
 				`id` int {$default_key_sign} NOT NULL auto_increment,
@@ -132,7 +118,7 @@ class PluginCostsConfig extends CommonDBTM {
 				PRIMARY KEY  (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
 
-			$DB->query($query) or die ($DB->error());
+			$DB->doQuery($query) or die($DB->error());
 			$config->add([
 				'id' => 1,
 				'taskdescription' => 0,

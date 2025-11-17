@@ -218,7 +218,7 @@ class PluginCostsTask extends CommonDBTM {
                      KEY `tasks_id` (`tasks_id`),
                      KEY `costs_id` (`costs_id`)
                   ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
-         $DB->query($query) or die($DB->error());
+         $DB->doQuery($query) or die($DB->error());
       } else {
          $migration->changeField($table,'costs_id','costs_id','int');
       }

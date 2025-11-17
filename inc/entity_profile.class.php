@@ -202,7 +202,7 @@ class PluginCostsEntity_Profile extends CommonDBRelation {
 				PRIMARY KEY (`id`),
 				UNIQUE KEY `unicity` (`entities_id`,`profiles_id`)
 			) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
-			$DB->query($query) or die($DB->error());
+			$DB->dQuery($query) or die($DB->error());
 		}
 	}
 

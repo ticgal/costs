@@ -39,7 +39,7 @@ use Glpi\Event;
 include('../../../inc/includes.php');
 
 if (!Plugin::isPluginActive('costs')) {
-    Html::displayNotFoundError();
+    die();
 }
 
 Session::checkLoginUser();
@@ -57,5 +57,4 @@ if (isset($_POST["add"])) {
     }
     Html::back();
 }
-
-Html::displayErrorAndDie("lost");
+die();

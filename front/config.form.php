@@ -37,7 +37,7 @@
 include("../../../inc/includes.php");
 
 if (!Plugin::isPluginActive('costs')) {
-    Html::displayNotFoundError();
+   die();
 }
 
 $config = new PluginCostsConfig();

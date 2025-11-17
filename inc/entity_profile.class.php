@@ -234,7 +234,7 @@ class PluginCostsEntity_Profile extends CommonDBRelation
 				UNIQUE KEY `unicity` (`entities_id`,`profiles_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
             COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-            $DB->doQueryOrDie($query, $DB->error());
+            $DB->doQuery($query);
         }
     }
 

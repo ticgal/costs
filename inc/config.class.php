@@ -167,7 +167,7 @@ class PluginCostsConfig extends CommonDBTM
                 PRIMARY KEY  (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
             COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-            $DB->doQueryOrDie($query, $DB->error());
+            $DB->doQuery($query);
 
             $config = new self();
             $config->add([

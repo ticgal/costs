@@ -37,7 +37,7 @@
 include('../../../inc/includes.php');
 
 if (!Plugin::isPluginActive('costs')) {
-    Html::displayNotFoundError();
+   die();
 }
 
 Session::haveRight("entity", UPDATE);
@@ -50,4 +50,4 @@ if (isset($_POST["update"])) {
     Html::back();
 }
 
-Html::displayErrorAndDie("lost");
+die();

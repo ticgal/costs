@@ -273,7 +273,7 @@ class PluginCostsTicket extends CommonDBTM
                     KEY `billable` (`billable`)
                 ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
                 COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-            $DB->doQueryOrDie($query, $DB->error());
+            $DB->doQuery($query);
         } else {
             if ($DB->fieldExists($table, 'costs_id')) {
                 if (!$DB->tableExists('glpi_plugin_costs_tasks')) {
@@ -312,7 +312,7 @@ class PluginCostsTicket extends CommonDBTM
                 $migration->dropKey($table, 'costs_id');
 
                 $clear_data = "TRUNCATE TABLE $table";
-                $DB->request($clear_data);
+                $DB->doQuery($clear_data);
             }
         }
         $migration->executeMigration();

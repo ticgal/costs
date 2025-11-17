@@ -57,8 +57,8 @@ function plugin_version_costs()
             'glpi'   => [
                 'min' => PLUGIN_COSTS_MIN_GLPI,
                 'max' => PLUGIN_COSTS_MAX_GLPI,
-            ]
-        ]
+            ],
+        ],
     ];
 }
 
@@ -78,14 +78,14 @@ function plugin_init_costs()
     $PLUGIN_HOOKS['csrf_compliant']['costs'] = true;
     $PLUGIN_HOOKS['pre_item_update']['costs'] = [
         'Ticket' => ['PluginCostsTicket', 'ticketUpdate'],
-        'TicketTask' => ['PluginCostsTask', 'preTaskUpdate']
+        'TicketTask' => ['PluginCostsTask', 'preTaskUpdate'],
     ];
     $PLUGIN_HOOKS['post_item_form']['costs'] = ['PluginCostsTicket', 'postItemForm'];
     $PLUGIN_HOOKS['item_add']['costs'] = [
         'Ticket' => ['PluginCostsTicket', 'ticketAdd'],
-        'TicketTask' => ['PluginCostsTask', 'taskAdd']
+        'TicketTask' => ['PluginCostsTask', 'taskAdd'],
     ];
     $PLUGIN_HOOKS['item_purge']['costs'] = [
-        'TicketTask' => ['PluginCostsTask', 'taskPurge']
+        'TicketTask' => ['PluginCostsTask', 'taskPurge'],
     ];
 }

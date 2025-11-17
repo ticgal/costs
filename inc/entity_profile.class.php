@@ -190,8 +190,8 @@ class PluginCostsEntityProfile extends CommonDBRelation
         $query = [
             'FROM' => self::getTable(),
             'WHERE' => [
-                'entities_id' => $entities_id
-            ]
+                'entities_id' => $entities_id,
+            ],
         ];
         if ($only_id) {
             foreach ($DB->request($query) as $row) {

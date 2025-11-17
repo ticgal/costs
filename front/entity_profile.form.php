@@ -52,7 +52,7 @@ if (isset($_POST["add"])) {
             'entity',
             4,
             "tracking",
-            sprintf(__('link with %1$s'), Profile::getFriendlyNameById($_POST["profiles_id"]))
+            sprintf(__('link with %1$s'), Profile::getFriendlyNameById($_POST["profiles_id"])),
         );
     }
     Html::back();

@@ -65,8 +65,8 @@ class PluginCostsTicket extends CommonDBTM
             'datatype'      => 'bool',
             'searchtype'    => 'equals',
             'joinparams'    => [
-                'jointype'      => 'child'
-            ]
+                'jointype'      => 'child',
+            ],
         ];
 
         return $opt;
@@ -87,7 +87,7 @@ class PluginCostsTicket extends CommonDBTM
             'FROM' => self::getTable(),
             'WHERE' => [
                 'tickets_id' => $ID,
-            ]
+            ],
         ];
         foreach ($DB->request($query) as $id => $row) {
             $DB->delete('glpi_ticketcosts', ['id' => $row['costs_id']]);
@@ -136,7 +136,7 @@ class PluginCostsTicket extends CommonDBTM
             }
             $DB->insert(self::getTable(), [
                 'tickets_id'    => $ticket_id,
-                'billable'      => $cost_config->fields['auto_cost']
+                'billable'      => $cost_config->fields['auto_cost'],
             ]);
             $this->fields = ['billable' => $cost_config->fields['auto_cost']];
             return false;
@@ -194,7 +194,7 @@ class PluginCostsTicket extends CommonDBTM
                             'field_class' => 'col-12',
                             'label_class' => $label_class,
                             'input_class' => $input_class,
-                        ]
+                        ],
                     ];
                     TemplateRenderer::getInstance()->display($template, $template_options);
                 }
@@ -238,7 +238,7 @@ class PluginCostsTicket extends CommonDBTM
             if ($cost_ticket->getFromDBByTicket($ticket->fields['id'])) {
                 $cost_ticket->update([
                     'billable'  => $ticket->input['cost_billable'],
-                    'id'        => $cost_ticket->getID()
+                    'id'        => $cost_ticket->getID(),
                 ]);
             }
         }
@@ -289,10 +289,10 @@ class PluginCostsTicket extends CommonDBTM
                         'glpi_ticketcosts' => [
                             'FKEY' => [
                                 'glpi_ticketcosts'  => 'id',
-                                $table              => 'costs_id'
-                            ]
-                        ]
-                    ]
+                                $table              => 'costs_id',
+                            ],
+                        ],
+                    ],
                 ];
                 $taskcost = new PluginCostsTask();
                 foreach ($DB->request($query) as $id => $row) {

@@ -76,7 +76,7 @@ class PluginCostsTask extends CommonDBTM
                     if (
                         $entity_profile->getFromDBByCrit([
                             'entities_id' => $cost_config->fields['entities_id'],
-                            'profiles_id' => $user->fields['profiles_id']
+                            'profiles_id' => $user->fields['profiles_id'],
                         ])
                     ) {
                         $cost_time = $entity_profile->fields['time_cost'];
@@ -171,7 +171,7 @@ class PluginCostsTask extends CommonDBTM
                 if (
                     $entity_profile->getFromDBByCrit([
                         'entities_id' => $cost_config->fields['entities_id'],
-                        'profiles_id' => $user->fields['profiles_id']
+                        'profiles_id' => $user->fields['profiles_id'],
                     ])
                 ) {
                     $cost_time = $entity_profile->fields['time_cost'];
@@ -186,8 +186,8 @@ class PluginCostsTask extends CommonDBTM
                         $query = [
                             'FROM' => self::getTable(),
                             'WHERE' => [
-                                'tasks_id' => $task->fields['id']
-                            ]
+                                'tasks_id' => $task->fields['id'],
+                            ],
                         ];
                         $req = $DB->request($query);
 
@@ -266,8 +266,8 @@ class PluginCostsTask extends CommonDBTM
         $query = [
             'FROM' => self::getTable(),
             'WHERE' => [
-                'tasks_id' => $task->fields['id']
-            ]
+                'tasks_id' => $task->fields['id'],
+            ],
         ];
         $req = $DB->request($query);
         foreach ($req as $row) {

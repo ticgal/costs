@@ -34,6 +34,8 @@
  * -------------------------------------------------------------------------
  */
 
+require_once __DIR__ . '/entity_profile.class.php';
+
 class PluginCostsEntity extends CommonDBTM
 {
     public static $rightname = 'entity';

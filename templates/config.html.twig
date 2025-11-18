@@ -32,28 +32,16 @@
 # -------------------------------------------------------------------------
 #}
 
-{% import 'components/form/fields_macros.html.twig' as fields %}
-{% import 'components/form/buttons.html.twig' as buttons %}
+<h3>{{ __("Add Task Description on Cost", "cost") }}</h3>
 
-{% if options is not defined %}
-{% set options = {} %}
-{% endif %}
+<form method="post">
+    {{ csrf_token() }}
 
-{{ include('components/form/header.html.twig', {'in_twig': true, 'no_header': true}) }}
+    <label for="taskdescription">{{ __("Add task description on cost", "costs") }}</label>
+    <select id="taskdescription" name="taskdescription" class="form-select">
+        <option value="1" {% if taskdescription == 1 %}selected{% endif %}>{{ __("Yes", "costs") }}</option>
+        <option value="0" {% if taskdescription == 0 %}selected{% endif %}>{{ __("No", "costs") }}</option>
+    </select>
 
-<div class="row">
-    <div class="row ps-4">
-
-        {{ fields.dropdownYesNo(
-            'taskdescription',
-            item.fields['taskdescription'],
-            __("Add task description on cost", "cost"),
-            options
-        ) }}
-
-    </div>
-</div>
-
-<div class="row mt-3 ps-4">
-    {{ buttons.submit(__('Save', 'cost')) }}
-</div>
+    <button type="submit" class="btn btn-primary mt-3">{{ __("Save", "costs") }}</button>
+</form>

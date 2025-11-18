@@ -41,6 +41,9 @@ class PluginCostsEntityProfile extends CommonDBRelation
     public static $itemtype_2 = 'Profile';
     public static $items_id_2 = 'profiles_id';
 
+    public static function getProfilesTable(){
+        return 'glpi_plugin_costs_entities_profiles';
+    }
     /**
      * showForEntity
      *
@@ -188,7 +191,7 @@ class PluginCostsEntityProfile extends CommonDBRelation
         $profiles = [];
 
         $query = [
-            'FROM' => self::getTable(),
+            'FROM' => self::getProfilesTable(),
             'WHERE' => [
                 'entities_id' => $entities_id,
             ],
@@ -221,7 +224,7 @@ class PluginCostsEntityProfile extends CommonDBRelation
         $default_collation  = DBConnection::getDefaultCollation();
         $default_key_sign   = DBConnection::getDefaultPrimaryKeySignOption();
 
-        $table = self::getTable();
+        $table = self::getProfilesTable();
         if (!$DB->tableExists($table)) {
             $migration->displayMessage("Installing $table");
             $query = "CREATE TABLE IF NOT EXISTS `$table` (
@@ -246,7 +249,7 @@ class PluginCostsEntityProfile extends CommonDBRelation
      */
     public static function unistall(Migration $migration): void
     {
-        $table = self::getTable();
+        $table = self::getProfilesTable();
         $migration->displayMessage("Uninstalling $table");
         $migration->dropTable($table);
     }

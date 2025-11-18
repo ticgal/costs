@@ -34,12 +34,16 @@
  * -------------------------------------------------------------------------
  */
 
-use Glpi\Application\View\TemplateRenderer;
+use Twig\Loader\FilesystemLoader;
+use Twig\Environment;
+use Twig\TwigFunction;
+use Twig\TwigFilter;
+use Twig\Markup;
 
 class PluginCostsConfig extends CommonDBTM
 {
     public static $rightname = 'config';
-
+    public const KEEP_ALL = 'all';
     private static $instance = null;
 
     /**
@@ -100,23 +104,77 @@ class PluginCostsConfig extends CommonDBTM
     }
 
     /**
-    * Summary of showConfigForm
-    *
-    * @return boolean
-    */
+     * Summary of showConfigForm
+     *
+     * @return boolean
+     */
     public static function showConfigForm(): bool
     {
-        $config = self::getInstance();
+        /** @var \DBmysql $DB */
+        global $DB;
 
-        $plugin = new Plugin();
-        $template = "@costs/config.html.twig";
-        $template_options = [
-            'item'      => $config,
-            'credit'    => ($plugin->isInstalled('credit') && $plugin->isActivated('credit')),
-        ];
-        TemplateRenderer::getInstance()->display($template, $template_options);
+        $config = self::getInstance();
+        $pluginTemplatePath = GLPI_ROOT . '/plugins/costs/templates';
+        $coreTemplatePath   = GLPI_ROOT . '/templates';
+
+        if (isset($_SESSION['costs']['taskdescription'])) {
+            $value = $_SESSION['costs']['taskdescription'];
+
+            if ($DB->request(['FROM' => self::getTable(), 'WHERE' => ['id' => 1]])->count()) {
+                $DB->update(
+                    self::getTable(),
+                    ['taskdescription' => $value],
+                    ['id' => 1],
+                );
+            } else {
+                $DB->insert(self::getTable(), [
+                    'id' => 1,
+                    'taskdescription' => $value,
+                ]);
+            }
+
+            $config->setLogTaskDescription($value);
+
+            Session::addMessageAfterRedirect(
+                __('Configuration saved successfully', 'costs'),
+                true,
+                INFO,
+            );
+        }
+
+        $loader = new FilesystemLoader([$pluginTemplatePath, $coreTemplatePath]);
+        $twig = new Environment($loader);
+
+        $twig->addFunction(new TwigFunction('csrf_token', function ($token_id = '_glpi_csrf_token') {
+            return new Markup('<input type="hidden" name="_glpi_csrf_token" value="' . Session::getNewCSRFToken() . '">', 'UTF-8');
+        }));
+        $twig->addFunction(new TwigFunction('__', fn($text, $domain = '') => $text));
+
+        echo $twig->render('config.html.twig', [
+            'item' => $config,
+            'taskdescription' => $config->getLogTaskDescription(),
+        ]);
 
         return true;
+    }
+
+    public function getLogTaskDescription(): string
+    {
+        if (isset($this->fields['taskdescription'])) {
+            return $this->fields['taskdescription'];
+        }
+
+        $cfg = Config::getConfigurationValues('plugin:costs');
+        if (!empty($cfg['taskdescription'])) {
+            return $cfg['taskdescription'];
+        }
+
+        return self::KEEP_ALL;
+    }
+
+    public function setLogTaskDescription(string $value): void
+    {
+        $this->fields['taskdescription'] = $value;
     }
 
     /**
@@ -125,6 +183,12 @@ class PluginCostsConfig extends CommonDBTM
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
     {
         if ($item->getType() == 'Config') {
+            if (isset($_POST['taskdescription'])) {
+                $_SESSION['costs']['taskdescription'] = $_POST['taskdescription'];
+            }
+
+            Session::checkLoginUser();
+            $_SESSION['glpicsrf_token'] = Session::getNewCSRFToken();
             return __("Costs", "costs");
         }
 

@@ -55,6 +55,15 @@ class PluginCostsEntity extends CommonDBTM
     {
         switch ($item::getType()) {
             case Entity::getType():
+                if (isset($_POST['plugin_cost_update'])) {
+                    $_SESSION['cost_config'] = [
+                        'fixed_cost'   => $_POST['fixed_cost']   ?? null,
+                        'time_cost'    => $_POST['time_cost']    ?? null,
+                        'cost_private' => $_POST['cost_private'] ?? null,
+                        'auto_cost'    => $_POST['auto_cost']    ?? null,
+                        'inheritance'  => $_POST['inheritance']  ?? null
+                    ];
+                }
                 return self::getTypeName();
         }
         return '';
@@ -88,6 +97,7 @@ class PluginCostsEntity extends CommonDBTM
         global $DB;
 
         $req = $DB->request(['FROM' => self::getTable(), 'WHERE' => ['entities_id' => $entities_id]]);
+
         if (count($req)) {
             foreach ($req as $result) {
                 $this->fields = $result;
@@ -121,6 +131,21 @@ class PluginCostsEntity extends CommonDBTM
         $inheritance = $cost_config->fields['inheritance'];
         $config_id = $cost_config->fields['id'];
 
+        if (isset($_SESSION['cost_config'])) {
+            $update_data = [
+                'id'           => $config_id,
+                'entities_id'  => $ID,
+                'fixed_cost'   => $_SESSION['cost_config']['fixed_cost'] ?? $cost_config->fields['fixed_cost'],
+                'time_cost'    => $_SESSION['cost_config']['time_cost'] ?? $cost_config->fields['time_cost'],
+                'cost_private' => $_SESSION['cost_config']['cost_private'] ?? $cost_config->fields['cost_private'],
+                'auto_cost'    => $_SESSION['cost_config']['auto_cost'] ?? $cost_config->fields['auto_cost'],
+                'inheritance'  => $_SESSION['cost_config']['inheritance'] ?? $cost_config->fields['inheritance']
+
+            ];
+            $cost_config->update($update_data);
+            $cost_config->getFromDB($config_id);
+        }
+
         $rand = mt_rand();
         $out = "<form name='costentity_form$rand' id='costentity_form$rand' method='post' action=''>";
         $out .= "<table class='tab_cadre_fixe'>";
@@ -134,6 +159,7 @@ class PluginCostsEntity extends CommonDBTM
 
         if ($inheritance == 1) {
             $parent_id = self::getConfigID($entity->fields['entities_id']);
+            var_dump($parent_id);
             $cost_config->getFromDB($parent_id);
             $out .= "<tr class='tab_bg_1'>";
             $out .= "<td>" . __('Fixed cost') . "</td>";
@@ -181,8 +207,8 @@ class PluginCostsEntity extends CommonDBTM
         $out .= "</td></tr>\n";
 
         $out .= "<tr><td class='tab_bg_2 right'>";
-        $out .= "<input type='submit' name='update' value='" . _sx('button', 'Update') . "' class='submit'>";
-        $out .= "<input type='hidden' name='id' value='" . $config_id . "'>";
+        $out .= "<input type='submit' name='plugin_cost_update' value='" . _sx('button', 'Update') . "' class='submit'>";
+        $out .= "<input type='hidden' name='plugin_cost_id' value='" . $config_id . "'>";
         $out .= "</td></tr>";
         $out .= "</table>";
         $out .= Html::closeForm(false);
@@ -194,7 +220,6 @@ class PluginCostsEntity extends CommonDBTM
         } else {
             PluginCostsEntityProfile::showForParent($cost_config->fields['entities_id']);
         }
-        
 
         return true;
     }
@@ -209,14 +234,15 @@ class PluginCostsEntity extends CommonDBTM
     {
         $config = new self();
         $config->getFromDBByEntity($entities_id);
+
         if ($config->fields['inheritance']) {
             $entity = new Entity();
-            if ($entity->getFromDB($entities_id)) {
+            if ($entity->getFromDB($entities_id) && $entity->fields['entities_id'] != $entities_id) {
                 return self::getConfigID($entity->fields['entities_id']);
             }
         }
 
-        return $config->fields['id'];
+        return $config->fields['id'] ?? 0;
     }
 
     /**

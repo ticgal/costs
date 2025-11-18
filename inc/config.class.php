@@ -70,7 +70,7 @@ class PluginCostsConfig extends CommonDBTM
     {
         return 'ti-icon-clock-dollar';
     }
-    
+
     /**
      * getInstance
      *

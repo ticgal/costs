@@ -34,7 +34,7 @@
  * -------------------------------------------------------------------------
  */
 
-require_once __DIR__ . '/entity_profile.class.php';
+require_once __DIR__ . '/entityprofile.class.php';
 
 class PluginCostsEntity extends CommonDBTM
 {
@@ -122,8 +122,7 @@ class PluginCostsEntity extends CommonDBTM
         $config_id = $cost_config->fields['id'];
 
         $rand = mt_rand();
-        $out = "<form name='costentity_form$rand' id='costentity_form$rand' method='post' action='";
-        $out .= self::getFormUrl() . "'>";
+        $out = "<form name='costentity_form$rand' id='costentity_form$rand' method='post' action=''>";
         $out .= "<table class='tab_cadre_fixe'>";
 
         if ($ID > 0) {
@@ -195,6 +194,7 @@ class PluginCostsEntity extends CommonDBTM
         } else {
             PluginCostsEntityProfile::showForParent($cost_config->fields['entities_id']);
         }
+        
 
         return true;
     }

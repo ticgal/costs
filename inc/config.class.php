@@ -66,6 +66,11 @@ class PluginCostsConfig extends CommonDBTM
         return __("Costs", "costs");
     }
 
+    public static function getIcon(): string
+    {
+        return 'ti-icon-clock-dollar';
+    }
+    
     /**
      * getInstance
      *

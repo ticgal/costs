@@ -61,7 +61,7 @@ class PluginCostsEntity extends CommonDBTM
                         'time_cost'    => $_POST['time_cost']    ?? null,
                         'cost_private' => $_POST['cost_private'] ?? null,
                         'auto_cost'    => $_POST['auto_cost']    ?? null,
-                        'inheritance'  => $_POST['inheritance']  ?? null
+                        'inheritance'  => $_POST['inheritance']  ?? null,
                     ];
                 }
                 return self::getTypeName();
@@ -139,7 +139,7 @@ class PluginCostsEntity extends CommonDBTM
                 'time_cost'    => $_SESSION['cost_config']['time_cost'] ?? $cost_config->fields['time_cost'],
                 'cost_private' => $_SESSION['cost_config']['cost_private'] ?? $cost_config->fields['cost_private'],
                 'auto_cost'    => $_SESSION['cost_config']['auto_cost'] ?? $cost_config->fields['auto_cost'],
-                'inheritance'  => $_SESSION['cost_config']['inheritance'] ?? $cost_config->fields['inheritance']
+                'inheritance'  => $_SESSION['cost_config']['inheritance'] ?? $cost_config->fields['inheritance'],
 
             ];
             $cost_config->update($update_data);
@@ -159,7 +159,6 @@ class PluginCostsEntity extends CommonDBTM
 
         if ($inheritance == 1) {
             $parent_id = self::getConfigID($entity->fields['entities_id']);
-            var_dump($parent_id);
             $cost_config->getFromDB($parent_id);
             $out .= "<tr class='tab_bg_1'>";
             $out .= "<td>" . __('Fixed cost') . "</td>";

@@ -3,7 +3,7 @@
 /*
  -------------------------------------------------------------------------
  Costs plugin for GLPI
- Copyright (C) 2018 by the TICgal Team.
+ Copyright (C) 2018 - 2026 by the TICGAL Team.
 
  https://github.com/ticgal/costs
  -------------------------------------------------------------------------
@@ -26,13 +26,16 @@
  along with Costs. If not, see <http://www.gnu.org/licenses/>.
  --------------------------------------------------------------------------
  @package   Costs
- @author    the TICgal team
- @copyright Copyright (c) 2018 TICgal team
+ @author    the TICGAL team
+ @copyright Copyright (C) 2018 - 2026 TICGAL team
  @license   AGPL License 3.0 or (at your option) any later version
             http://www.gnu.org/licenses/agpl-3.0-standalone.html
  @link      https://tic.gal
  @since     2018
  ---------------------------------------------------------------------- */
+
+use Glpi\Plugin\Hooks;
+
 define('PLUGIN_COSTS_VERSION', '4.0.0-beta.1');
 // Minimal GLPI version, inclusive
 define("PLUGIN_COSTS_MIN_GLPI", "11.0");
@@ -50,7 +53,7 @@ function plugin_version_costs()
     return [
         'name'       => 'Costs',
         'version'        => PLUGIN_COSTS_VERSION,
-        'author'         => '<a href="https://tic.gal">TICgal</a>',
+        'author'         => '<a href="https://tic.gal">TICGAL</a>',
         'homepage'       => 'https://tic.gal/en/project/costs-control-plugin-glpi/',
         'license'        => 'GPLv3+',
         'requirements'   => [
@@ -72,20 +75,19 @@ function plugin_init_costs()
     }
     if (Session::haveRightsOr("config", [READ, UPDATE])) {
         Plugin::registerClass('PluginCostsConfig', ['addtabon' => 'Config']);
-        $PLUGIN_HOOKS['config_page']['costs'] = 'front/config.form.php';
+        $PLUGIN_HOOKS[Hooks::CONFIG_PAGE]['costs'] = 'front/config.form.php';
     }
 
-    $PLUGIN_HOOKS['csrf_compliant']['costs'] = true;
-    $PLUGIN_HOOKS['pre_item_update']['costs'] = [
+    $PLUGIN_HOOKS[Hooks::PRE_ITEM_UPDATE]['costs'] = [
         'Ticket' => ['PluginCostsTicket', 'ticketUpdate'],
         'TicketTask' => ['PluginCostsTask', 'preTaskUpdate'],
     ];
-    $PLUGIN_HOOKS['post_item_form']['costs'] = ['PluginCostsTicket', 'postItemForm'];
-    $PLUGIN_HOOKS['item_add']['costs'] = [
+    $PLUGIN_HOOKS[Hooks::POST_ITEM_FORM]['costs'] = ['PluginCostsTicket', 'postItemForm'];
+    $PLUGIN_HOOKS[Hooks::ITEM_ADD]['costs'] = [
         'Ticket' => ['PluginCostsTicket', 'ticketAdd'],
         'TicketTask' => ['PluginCostsTask', 'taskAdd'],
     ];
-    $PLUGIN_HOOKS['item_purge']['costs'] = [
+    $PLUGIN_HOOKS[Hooks::ITEM_PURGE]['costs'] = [
         'TicketTask' => ['PluginCostsTask', 'taskPurge'],
     ];
 }

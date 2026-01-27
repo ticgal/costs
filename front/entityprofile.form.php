@@ -36,10 +36,8 @@
 
 use Glpi\Event;
 
-include('../../../inc/includes.php');
-
 if (!Plugin::isPluginActive('costs')) {
-    die();
+    throw new \Glpi\Exception\Http\NotFoundHttpException();
 }
 
 Session::checkLoginUser();
@@ -57,4 +55,4 @@ if (isset($_POST["add"])) {
     }
     Html::back();
 }
-die();
+throw new \Glpi\Exception\Http\BadRequestHttpException();

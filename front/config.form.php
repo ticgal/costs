@@ -34,10 +34,8 @@
  * -------------------------------------------------------------------------
  */
 
-include("../../../inc/includes.php");
-
 if (!Plugin::isPluginActive('costs')) {
-    die();
+    throw new \Glpi\Exception\Http\NotFoundHttpException();
 }
 
 $config = new PluginCostsConfig();

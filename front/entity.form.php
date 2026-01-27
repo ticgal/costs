@@ -34,10 +34,8 @@
  * -------------------------------------------------------------------------
  */
 
-include('../../../inc/includes.php');
-
 if (!Plugin::isPluginActive('costs')) {
-    die();
+    throw new \Glpi\Exception\Http\NotFoundHttpException();
 }
 
 Session::haveRight("entity", UPDATE);
@@ -50,4 +48,4 @@ if (isset($_POST["update"])) {
     Html::back();
 }
 
-die();
+throw new \Glpi\Exception\Http\BadRequestHttpException();

@@ -117,7 +117,7 @@ class PluginCostsConfig extends CommonDBTM
         $config = self::getInstance();
 
         $options = [
-            'full_width' => true
+            'full_width' => true,
         ];
 
         TemplateRenderer::getInstance()->display('@costs/config.html.twig', [

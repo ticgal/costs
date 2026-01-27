@@ -34,11 +34,7 @@
  * -------------------------------------------------------------------------
  */
 
-use Twig\Loader\FilesystemLoader;
-use Twig\Environment;
-use Twig\TwigFunction;
-use Twig\TwigFilter;
-use Twig\Markup;
+use Glpi\Application\View\TemplateRenderer;
 
 class PluginCostsConfig extends CommonDBTM
 {
@@ -68,7 +64,7 @@ class PluginCostsConfig extends CommonDBTM
 
     public static function getIcon(): string
     {
-        return 'ti-icon-clock-dollar';
+        return PLUGIN_COSTS_ICON;
     }
 
     /**
@@ -119,67 +115,17 @@ class PluginCostsConfig extends CommonDBTM
         global $DB;
 
         $config = self::getInstance();
-        $pluginTemplatePath = GLPI_ROOT . '/plugins/costs/templates';
-        $coreTemplatePath   = GLPI_ROOT . '/templates';
 
-        if (isset($_SESSION['costs']['taskdescription'])) {
-            $value = $_SESSION['costs']['taskdescription'];
+        $options = [
+            'full_width' => true
+        ];
 
-            if ($DB->request(['FROM' => self::getTable(), 'WHERE' => ['id' => 1]])->count()) {
-                $DB->update(
-                    self::getTable(),
-                    ['taskdescription' => $value],
-                    ['id' => 1],
-                );
-            } else {
-                $DB->insert(self::getTable(), [
-                    'id' => 1,
-                    'taskdescription' => $value,
-                ]);
-            }
-
-            $config->setLogTaskDescription($value);
-
-            Session::addMessageAfterRedirect(
-                __('Configuration saved successfully', 'costs'),
-                true,
-                INFO,
-            );
-        }
-
-        $loader = new FilesystemLoader([$pluginTemplatePath, $coreTemplatePath]);
-        $twig = new Environment($loader);
-
-        $twig->addFunction(new TwigFunction('csrf_token', function ($token_id = '_glpi_csrf_token') {
-            return new Markup('<input type="hidden" name="_glpi_csrf_token" value="' . Session::getNewCSRFToken() . '">', 'UTF-8');
-        }));
-        $twig->addFunction(new TwigFunction('__', fn($text, $domain = '') => $text));
-
-        echo $twig->render('config.html.twig', [
+        TemplateRenderer::getInstance()->display('@costs/config.html.twig', [
             'item' => $config,
-            'taskdescription' => $config->getLogTaskDescription(),
+            'options' => $options,
         ]);
 
         return true;
-    }
-
-    public function getLogTaskDescription(): string
-    {
-        if (isset($this->fields['taskdescription'])) {
-            return $this->fields['taskdescription'];
-        }
-
-        $cfg = Config::getConfigurationValues('plugin:costs');
-        if (!empty($cfg['taskdescription'])) {
-            return $cfg['taskdescription'];
-        }
-
-        return self::KEEP_ALL;
-    }
-
-    public function setLogTaskDescription(string $value): void
-    {
-        $this->fields['taskdescription'] = $value;
     }
 
     /**
@@ -188,13 +134,7 @@ class PluginCostsConfig extends CommonDBTM
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
     {
         if ($item->getType() == 'Config') {
-            if (isset($_POST['taskdescription'])) {
-                $_SESSION['costs']['taskdescription'] = $_POST['taskdescription'];
-            }
-
-            Session::checkLoginUser();
-            $_SESSION['glpicsrf_token'] = Session::getNewCSRFToken();
-            return __("Costs", "costs");
+            return self::createTabEntry(__("Costs", "costs"));
         }
 
         return '';
@@ -234,8 +174,7 @@ class PluginCostsConfig extends CommonDBTM
                 `id` INT {$default_key_sign} NOT NULL AUTO_INCREMENT,
                 `taskdescription` TINYINT NOT NULL DEFAULT '0',
                 PRIMARY KEY  (`id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
-            COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
             $DB->doQuery($query);
 
             $config = new self();

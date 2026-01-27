@@ -232,19 +232,18 @@ class PluginCostsEntityProfile extends CommonDBRelation
 				`time_cost` float NOT NULL default '0',
 				PRIMARY KEY (`id`),
 				UNIQUE KEY `unicity` (`entities_id`,`profiles_id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
-            COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
             $DB->doQuery($query);
         }
     }
 
     /**
-     * unistall
+     * uninstall
      *
      * @param  Migration $migration
      * @return void
      */
-    public static function unistall(Migration $migration): void
+    public static function uninstall(Migration $migration): void
     {
         $table = self::getTable();
         $migration->displayMessage("Uninstalling $table");

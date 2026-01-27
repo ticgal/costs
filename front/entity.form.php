@@ -43,7 +43,7 @@ Session::haveRight("entity", UPDATE);
 $Entity             = new Entity();
 $PluginCostsEntity  = new PluginCostsEntity();
 
-if (isset($_POST["update"])) {
+if (isset($_POST["plugin_cost_update"])) {
     $PluginCostsEntity->update($_POST);
     Html::back();
 }

@@ -31,15 +31,21 @@
 # @since     2018
 # -------------------------------------------------------------------------
 #}
+{% import 'components/form/fields_macros.html.twig' as fields %}
+{% import 'components/form/buttons.html.twig' as buttons %}
 
 {% if options is not defined %}
     {% set options = {} %}
 {% endif %}
 
-<div id="billeable_dropdown">
-    <label for="cost_billable">{{ __('Billable', 'cost') }}</label>
-    <select id="cost_billable" name="cost_billable" class="form-select">
-        <option value="1" {% if billable == 1 %}selected{% endif %}>{{ __('Yes', 'cost') }}</option>
-        <option value="0" {% if billable == 0 %}selected{% endif %}>{{ __('No', 'cost') }}</option>
-    </select>
+<div class="row">
+    <div class="row ps-4">
+
+        {{ fields.dropdownYesNo(
+            'cost_billable',
+            item.fields['cost_billable'],
+            __("Billable", "costs"),
+            options
+        ) }}
+    </div>
 </div>

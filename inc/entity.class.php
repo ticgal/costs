@@ -34,8 +34,6 @@
  * -------------------------------------------------------------------------
  */
 
-require_once __DIR__ . '/entityprofile.class.php';
-
 class PluginCostsEntity extends CommonDBTM
 {
     public static $rightname = 'entity';
@@ -55,16 +53,7 @@ class PluginCostsEntity extends CommonDBTM
     {
         switch ($item::getType()) {
             case Entity::getType():
-                if (isset($_POST['plugin_cost_update'])) {
-                    $_SESSION['cost_config'] = [
-                        'fixed_cost'   => $_POST['fixed_cost']   ?? null,
-                        'time_cost'    => $_POST['time_cost']    ?? null,
-                        'cost_private' => $_POST['cost_private'] ?? null,
-                        'auto_cost'    => $_POST['auto_cost']    ?? null,
-                        'inheritance'  => $_POST['inheritance']  ?? null,
-                    ];
-                }
-                return self::getTypeName();
+                return self::createTabEntry(self::getTypeName());
         }
         return '';
     }
@@ -131,23 +120,9 @@ class PluginCostsEntity extends CommonDBTM
         $inheritance = $cost_config->fields['inheritance'];
         $config_id = $cost_config->fields['id'];
 
-        if (isset($_SESSION['cost_config'])) {
-            $update_data = [
-                'id'           => $config_id,
-                'entities_id'  => $ID,
-                'fixed_cost'   => $_SESSION['cost_config']['fixed_cost'] ?? $cost_config->fields['fixed_cost'],
-                'time_cost'    => $_SESSION['cost_config']['time_cost'] ?? $cost_config->fields['time_cost'],
-                'cost_private' => $_SESSION['cost_config']['cost_private'] ?? $cost_config->fields['cost_private'],
-                'auto_cost'    => $_SESSION['cost_config']['auto_cost'] ?? $cost_config->fields['auto_cost'],
-                'inheritance'  => $_SESSION['cost_config']['inheritance'] ?? $cost_config->fields['inheritance'],
-
-            ];
-            $cost_config->update($update_data);
-            $cost_config->getFromDB($config_id);
-        }
-
         $rand = mt_rand();
-        $out = "<form name='costentity_form$rand' id='costentity_form$rand' method='post' action=''>";
+        $out = "<form name='costentity_form$rand' id='costentity_form$rand' method='post' action='";
+        $out .= self::getFormUrl() . "'>";
         $out .= "<table class='tab_cadre_fixe'>";
 
         if ($ID > 0) {
@@ -207,7 +182,7 @@ class PluginCostsEntity extends CommonDBTM
 
         $out .= "<tr><td class='tab_bg_2 right'>";
         $out .= "<input type='submit' name='plugin_cost_update' value='" . _sx('button', 'Update') . "' class='submit'>";
-        $out .= "<input type='hidden' name='plugin_cost_id' value='" . $config_id . "'>";
+        $out .= "<input type='hidden' name='id' value='" . $config_id . "'>";
         $out .= "</td></tr>";
         $out .= "</table>";
         $out .= Html::closeForm(false);
@@ -244,6 +219,11 @@ class PluginCostsEntity extends CommonDBTM
         return $config->fields['id'] ?? 0;
     }
 
+    public static function getIcon(): string
+    {
+        return PLUGIN_COSTS_ICON;
+    }
+
     /**
      * install
      *
@@ -274,8 +254,7 @@ class PluginCostsEntity extends CommonDBTM
                 `inheritance` tinyint NOT NULL DEFAULT '0',
                 PRIMARY KEY (id),
                 KEY entities_id (entities_id)
-            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
-            COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
             $DB->doQuery($query);
         } else {
             if (!$DB->fieldExists($table, 'auto_cost')) {

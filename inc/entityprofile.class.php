@@ -41,6 +41,16 @@ class PluginCostsEntityProfile extends CommonDBRelation
     public static $itemtype_2 = 'Profile';
     public static $items_id_2 = 'profiles_id';
 
+    public function getForbiddenStandardMassiveAction(): array
+    {
+        $forbidden   = parent::getForbiddenStandardMassiveAction();
+        $forbidden[] = 'update';
+        $forbidden[] = 'clone';
+        $forbidden[] = 'add_transfer_list';
+
+        return $forbidden;
+    }
+
     /**
      * showForEntity
      *

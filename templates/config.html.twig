@@ -43,7 +43,7 @@
 <div class="asset {{ bg }}">
     {{ include('components/form/header.html.twig', {'in_twig': true, 'no_header': true}) }}
     {% set params = params ?? [] %}
-    <h3 class="card-title d-flex align-items-center ps-0">{{ __("Add Task Description on Cost", "cost") }}</h3>
+    <h3 class="card-title d-flex align-items-center ps-0">{{ __("Add Task Description on Cost", "costs") }}</h3>
 
     <div class="row">
         <div class="row ps-4">
@@ -52,7 +52,10 @@
             'taskdescription',
             item.fields['taskdescription'],
             __("Add task description on cost", "costs"),
-            options
+            options|merge(({
+                'field_class': 'col-12 glpi-full-width',
+                'use_checkbox': 'true',
+            }))
         ) }}
 
         </div>

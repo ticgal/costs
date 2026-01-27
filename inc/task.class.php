@@ -35,7 +35,6 @@
  */
 
 use Glpi\RichText\RichText;
-use Glpi\Toolbox\Sanitizer;
 
 class PluginCostsTask extends CommonDBTM
 {
@@ -322,8 +321,7 @@ class PluginCostsTask extends CommonDBTM
                 PRIMARY KEY (`id`),
                 KEY `tasks_id` (`tasks_id`),
                 KEY `costs_id` (`costs_id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
-            COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
             $DB->doQuery($query);
         } else {
             $migration->changeField($table, 'costs_id', 'costs_id', 'fkey');

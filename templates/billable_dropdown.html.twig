@@ -38,14 +38,12 @@
     {% set options = {} %}
 {% endif %}
 
-<div class="row">
-    <div class="row ps-4">
-
-        {{ fields.dropdownYesNo(
-            'cost_billable',
-            item.fields['cost_billable'],
-            __("Billable", "costs"),
-            options
-        ) }}
-    </div>
-</div>
+{{ fields.dropdownYesNo(
+    'cost_billable',
+    billable,
+    __("Billable", "costs"),
+    options|merge(({
+        'field_class': 'col-12 glpi-full-width',
+        'use_checkbox': 'true',
+    }))
+) }}

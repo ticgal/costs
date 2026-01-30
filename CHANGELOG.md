@@ -1,6 +1,15 @@
 # Costs
 The cost plugin for GLPI
 
+## [3.1.0] - 2025-01-30
+### Features
+- GLPI 11 compatibility support
+- Maintain backward compatibility with GLPI 10.0+
+
+### Changed
+- Updated version constraints to support GLPI 10.0 to <12.0
+- Verified all APIs and functionality work correctly on GLPI 11.x
+
 ## [3.0.6] - 2024-11-29
 ## Fixed
 - Task content as cost comment, cleaning tags and length control #26862

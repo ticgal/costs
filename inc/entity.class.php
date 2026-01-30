@@ -95,7 +95,9 @@ class PluginCostsEntity extends CommonDBTM
             } else {
                 $id = $this->add(['entities_id' => $entities_id]);
             }
-            $this->getFromDB($id);
+            if ($id) {
+                $this->getFromDB($id);
+            }
             return false;
         }
     }
@@ -264,12 +266,12 @@ class PluginCostsEntity extends CommonDBTM
     }
 
     /**
-     * unistall
+     * uninstall
      *
      * @param  Migration $migration
      * @return void
      */
-    public static function unistall(Migration $migration): void
+    public static function uninstall(Migration $migration): void
     {
         $table = self::getTable();
         $migration->displayMessage("Uninstalling $table");

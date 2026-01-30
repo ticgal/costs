@@ -9,6 +9,11 @@ GLPI Plugin Costs. Automatic costs generation.
 [![Web](https://img.shields.io/badge/Web-TICgal-blue.svg?style=flat-square)](https://tic.gal/en/project/costs-control-plugin-glpi/)
 [![Localazy](https://img.shields.io/badge/Translate-Localazy-cyan)](https://localazy.com/p/costs#translations)
 
+## Compatibility
+
+- **GLPI 10.0+**: Fully supported
+- **GLPI 11.x**: Fully supported (version 3.1.0+)
+
 ## English
 This plugin allows you to assign both fixed an time (hourly) costs and generates them automatically when solving a ticket.
 Check out detailed setup instructions for version 2: https://tic.gal/en/new-costs-2-glpi-plugin/

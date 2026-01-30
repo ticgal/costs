@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    platform: linux/amd64
+    container_name: glpi11-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: glpi_root_pass
+      MYSQL_DATABASE: glpi11_test
+      MYSQL_USER: glpi_user
+      MYSQL_PASSWORD: glpi_pass
+    volumes:
+      - glpi11-mysql-data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - glpi11-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "glpi_user", "-pglpi_pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  glpi:
+    image: diouxx/glpi:latest
+    platform: linux/amd64
+    container_name: glpi11-app
+    environment:
+      # Note: Adjust GLPI_VERSION if specific version needed
+      # Check available versions at: https://github.com/glpi-project/glpi/releases
+      GLPI_VERSION: "11.0.5"
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: glpi11_test
+      MYSQL_USER: glpi_user
+      MYSQL_PASSWORD: glpi_pass
+      TIMEZONE: UTC
+    ports:
+      - "8081:80"
+    volumes:
+      - glpi11-files:/var/www/html/glpi/files
+      - glpi11-plugins:/var/www/html/glpi/plugins
+      # Mount the costs plugin (read-only to prevent accidental modifications)
+      - ./:/var/www/html/glpi/plugins/costs:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - glpi11-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  glpi11-mysql-data:
+    name: glpi11-mysql-data
+  glpi11-files:
+    name: glpi11-files
+  glpi11-plugins:
+    name: glpi11-plugins
+
+networks:
+  glpi11-network:
+    name: glpi11-network
+    driver: bridge

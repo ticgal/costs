@@ -1,0 +1,129 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-01-30T19:00:54.885Z",
+  "stack": {
+    "primaryLanguage": "php",
+    "languages": [
+      "php"
+    ],
+    "frameworks": [],
+    "buildTools": [],
+    "testFrameworks": [],
+    "packageManager": null,
+    "isMonorepo": false,
+    "hasDocker": false,
+    "hasCI": true
+  },
+  "structure": {
+    "totalFiles": 36,
+    "topDirectories": [
+      {
+        "name": "CHANGELOG.md",
+        "fileCount": 1
+      },
+      {
+        "name": "front",
+        "fileCount": 3
+      },
+      {
+        "name": "hook.php",
+        "fileCount": 1
+      },
+      {
+        "name": "inc",
+        "fileCount": 5
+      },
+      {
+        "name": "LICENSE",
+        "fileCount": 1
+      },
+      {
+        "name": "locales",
+        "fileCount": 12
+      },
+      {
+        "name": "README.md",
+        "fileCount": 1
+      },
+      {
+        "name": "report",
+        "fileCount": 2
+      },
+      {
+        "name": "setup.php",
+        "fileCount": 1
+      },
+      {
+        "name": "templates",
+        "fileCount": 2
+      },
+      {
+        "name": "tools",
+        "fileCount": 7
+      }
+    ],
+    "languageDistribution": [
+      {
+        "extension": ".php",
+        "count": 13
+      },
+      {
+        "extension": ".po",
+        "count": 5
+      },
+      {
+        "extension": ".mo",
+        "count": 5
+      },
+      {
+        "extension": ".sh",
+        "count": 4
+      },
+      {
+        "extension": ".md",
+        "count": 2
+      },
+      {
+        "extension": ".twig",
+        "count": 2
+      },
+      {
+        "extension": ".json",
+        "count": 1
+      },
+      {
+        "extension": ".pot",
+        "count": 1
+      },
+      {
+        "extension": ".phar",
+        "count": 1
+      },
+      {
+        "extension": ".neon",
+        "count": 1
+      }
+    ]
+  },
+  "architecture": {
+    "layers": [],
+    "patterns": [],
+    "entryPoints": []
+  },
+  "symbols": {
+    "classes": [],
+    "interfaces": [],
+    "functions": [],
+    "types": [],
+    "enums": []
+  },
+  "publicAPI": [],
+  "dependencies": {
+    "mostImported": []
+  },
+  "stats": {
+    "totalSymbols": 0,
+    "exportedSymbols": 0,
+    "analysisTimeMs": 31
+  }
+}

@@ -3,7 +3,7 @@
 /**
  * -------------------------------------------------------------------------
  * Costs plugin for GLPI
- * Copyright (C) 2018-2024 by the TICgal Team.
+ * Copyright (C) 2018 - 2026 by the TICGAL Team.
  *
  * https://github.com/ticgal/costs
  * -------------------------------------------------------------------------
@@ -25,8 +25,8 @@
  * along with Costs. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
  * @package   Costs
- * @author    the TICgal team
- * @copyright Copyright (c) 2018-2024 TICgal team
+ * @author    the TICGAL team
+ * @copyright Copyright (C) 2018 - 2026 TICGAL team
  * @license   AGPL License 3.0 or (at your option) any later version
  *             http://www.gnu.org/licenses/agpl-3.0-standalone.html
  * @link      https://tic.gal
@@ -39,7 +39,7 @@ use Glpi\Application\View\TemplateRenderer;
 class PluginCostsConfig extends CommonDBTM
 {
     public static $rightname = 'config';
-
+    public const KEEP_ALL = 'all';
     private static $instance = null;
 
     /**
@@ -60,6 +60,11 @@ class PluginCostsConfig extends CommonDBTM
     public static function getTypeName($nb = 0): string
     {
         return __("Costs", "costs");
+    }
+
+    public static function getIcon(): string
+    {
+        return PLUGIN_COSTS_ICON;
     }
 
     /**
@@ -100,21 +105,25 @@ class PluginCostsConfig extends CommonDBTM
     }
 
     /**
-    * Summary of showConfigForm
-    *
-    * @return boolean
-    */
+     * Summary of showConfigForm
+     *
+     * @return boolean
+     */
     public static function showConfigForm(): bool
     {
+        /** @var \DBmysql $DB */
+        global $DB;
+
         $config = self::getInstance();
 
-        $plugin = new Plugin();
-        $template = "@costs/config.html.twig";
-        $template_options = [
-            'item'      => $config,
-            'credit'    => ($plugin->isInstalled('credit') && $plugin->isActivated('credit')),
+        $options = [
+            'full_width' => true,
         ];
-        TemplateRenderer::getInstance()->display($template, $template_options);
+
+        TemplateRenderer::getInstance()->display('@costs/config.html.twig', [
+            'item' => $config,
+            'options' => $options,
+        ]);
 
         return true;
     }
@@ -125,7 +134,7 @@ class PluginCostsConfig extends CommonDBTM
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
     {
         if ($item->getType() == 'Config') {
-            return __("Costs", "costs");
+            return self::createTabEntry(__("Costs", "costs"));
         }
 
         return '';
@@ -165,9 +174,8 @@ class PluginCostsConfig extends CommonDBTM
                 `id` INT {$default_key_sign} NOT NULL AUTO_INCREMENT,
                 `taskdescription` TINYINT NOT NULL DEFAULT '0',
                 PRIMARY KEY  (`id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
-            COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-            $DB->doQueryOrDie($query, $DB->error());
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            $DB->doQuery($query);
 
             $config = new self();
             $config->add([

@@ -3,7 +3,7 @@
 /**
  * -------------------------------------------------------------------------
  * Costs plugin for GLPI
- * Copyright (C) 2018-2024 by the TICgal Team.
+ * Copyright (C) 2018 - 2026 by the TICGAL Team.
  *
  * https://github.com/ticgal/costs
  * -------------------------------------------------------------------------
@@ -25,8 +25,8 @@
  * along with Costs. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
  * @package   Costs
- * @author    the TICgal team
- * @copyright Copyright (c) 2018-2024 TICgal team
+ * @author    the TICGAL team
+ * @copyright Copyright (C) 2018 - 2026 TICGAL team
  * @license   AGPL License 3.0 or (at your option) any later version
  *             http://www.gnu.org/licenses/agpl-3.0-standalone.html
  * @link      https://tic.gal
@@ -53,9 +53,8 @@ class PluginCostsEntity extends CommonDBTM
     {
         switch ($item::getType()) {
             case Entity::getType():
-                return self::getTypeName();
+                return self::createTabEntry(self::getTypeName());
         }
-
         return '';
     }
 
@@ -66,7 +65,10 @@ class PluginCostsEntity extends CommonDBTM
     {
         switch ($item::getType()) {
             case Entity::getType():
-                return self::displayTabForEntity($item);
+                if ($item instanceof Entity) {
+                    return self::displayTabForEntity($item);
+                }
+                return false;
         }
 
         return false;
@@ -83,7 +85,8 @@ class PluginCostsEntity extends CommonDBTM
         /** @var \DBmysql $DB */
         global $DB;
 
-        $req = $DB->request(['FROM' => self::getTable(),'WHERE' => ['entities_id' => $entities_id]]);
+        $req = $DB->request(['FROM' => self::getTable(), 'WHERE' => ['entities_id' => $entities_id]]);
+
         if (count($req)) {
             foreach ($req as $result) {
                 $this->fields = $result;
@@ -91,7 +94,7 @@ class PluginCostsEntity extends CommonDBTM
             return true;
         } else {
             if ($entities_id > 0) {
-                $id = $this->add(['entities_id' => $entities_id,'inheritance' => 1]);
+                $id = $this->add(['entities_id' => $entities_id, 'inheritance' => 1]);
             } else {
                 $id = $this->add(['entities_id' => $entities_id]);
             }
@@ -125,7 +128,7 @@ class PluginCostsEntity extends CommonDBTM
         if ($ID > 0) {
             $out .= "<tr class='tab_bg_1'>";
             $out .= "<td style='width: 400px;'>" . __('Inheritance of the parent entity') . "</td><td>";
-            $out .= Dropdown::showYesNo("inheritance", $cost_config->fields['inheritance'], -1, ['display' => false,'use_checkbox' => true]);
+            $out .= Dropdown::showYesNo("inheritance", $cost_config->fields['inheritance'], -1, ['display' => false, 'use_checkbox' => true]);
             $out .= "</td></tr>\n";
         }
 
@@ -178,7 +181,7 @@ class PluginCostsEntity extends CommonDBTM
         $out .= "</td></tr>\n";
 
         $out .= "<tr><td class='tab_bg_2 right'>";
-        $out .= "<input type='submit' name='update' value='" . _sx('button', 'Update') . "' class='submit'>";
+        $out .= "<input type='submit' name='plugin_cost_update' value='" . _sx('button', 'Update') . "' class='submit'>";
         $out .= "<input type='hidden' name='id' value='" . $config_id . "'>";
         $out .= "</td></tr>";
         $out .= "</table>";
@@ -187,9 +190,9 @@ class PluginCostsEntity extends CommonDBTM
         echo $out;
 
         if ($inheritance != 1) {
-            PluginCostsEntity_Profile::showForEntity($entity);
+            PluginCostsEntityProfile::showForEntity($entity);
         } else {
-            PluginCostsEntity_Profile::showForParent($cost_config->fields['entities_id']);
+            PluginCostsEntityProfile::showForParent($cost_config->fields['entities_id']);
         }
 
         return true;
@@ -205,14 +208,20 @@ class PluginCostsEntity extends CommonDBTM
     {
         $config = new self();
         $config->getFromDBByEntity($entities_id);
+
         if ($config->fields['inheritance']) {
             $entity = new Entity();
-            if ($entity->getFromDB($entities_id)) {
+            if ($entity->getFromDB($entities_id) && $entity->fields['entities_id'] != $entities_id) {
                 return self::getConfigID($entity->fields['entities_id']);
             }
         }
 
-        return $config->fields['id'];
+        return $config->fields['id'] ?? 0;
+    }
+
+    public static function getIcon(): string
+    {
+        return PLUGIN_COSTS_ICON;
     }
 
     /**
@@ -245,9 +254,8 @@ class PluginCostsEntity extends CommonDBTM
                 `inheritance` tinyint NOT NULL DEFAULT '0',
                 PRIMARY KEY (id),
                 KEY entities_id (entities_id)
-            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
-            COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-            $DB->doQueryOrDie($query, $DB->error());
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            $DB->doQuery($query);
         } else {
             if (!$DB->fieldExists($table, 'auto_cost')) {
                 $migration->displayMessage("Upgrading $table");

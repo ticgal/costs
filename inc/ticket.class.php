@@ -3,7 +3,7 @@
 /**
  * -------------------------------------------------------------------------
  * Costs plugin for GLPI
- * Copyright (C) 2018-2024 by the TICgal Team.
+ * Copyright (C) 2018 - 2026 by the TICGAL Team.
  *
  * https://github.com/ticgal/costs
  * -------------------------------------------------------------------------
@@ -25,8 +25,8 @@
  * along with Costs. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
  * @package   Costs
- * @author    the TICgal team
- * @copyright Copyright (c) 2018-2024 TICgal team
+ * @author    the TICGAL team
+ * @copyright Copyright (C) 2018 - 2026 TICGAL team
  * @license   AGPL License 3.0 or (at your option) any later version
  *             http://www.gnu.org/licenses/agpl-3.0-standalone.html
  * @link      https://tic.gal
@@ -45,7 +45,7 @@ class PluginCostsTicket extends CommonDBTM
      */
     public static function getTypeName($nb = 0): string
     {
-        return __('Costs', 'Costs');
+        return __('Costs', 'costs');
     }
 
     /**
@@ -61,12 +61,12 @@ class PluginCostsTicket extends CommonDBTM
             'id'            => '1000',
             'table'         => self::getTable(),
             'field'         => 'billable',
-            'name'          => __("Billable", 'cost'),
+            'name'          => __("Billable", 'costs'),
             'datatype'      => 'bool',
             'searchtype'    => 'equals',
             'joinparams'    => [
-                'jointype'      => 'child'
-            ]
+                'jointype'      => 'child',
+            ],
         ];
 
         return $opt;
@@ -87,7 +87,7 @@ class PluginCostsTicket extends CommonDBTM
             'FROM' => self::getTable(),
             'WHERE' => [
                 'tickets_id' => $ID,
-            ]
+            ],
         ];
         foreach ($DB->request($query) as $id => $row) {
             $DB->delete('glpi_ticketcosts', ['id' => $row['costs_id']]);
@@ -136,7 +136,7 @@ class PluginCostsTicket extends CommonDBTM
             }
             $DB->insert(self::getTable(), [
                 'tickets_id'    => $ticket_id,
-                'billable'      => $cost_config->fields['auto_cost']
+                'billable'      => $cost_config->fields['auto_cost'],
             ]);
             $this->fields = ['billable' => $cost_config->fields['auto_cost']];
             return false;
@@ -175,26 +175,10 @@ class PluginCostsTicket extends CommonDBTM
                         $billable = $cost_ticket->fields['billable'];
                     }
 
-                    $label_class = 'col-xxl-4';
-                    $input_class = 'col-xxl-8';
-                    if (
-                        /** @phpstan-ignore-next-line */
-                        version_compare(GLPI_VERSION, '10.0.10', '>=')
-                        /** @phpstan-ignore-next-line */
-                        && version_compare(GLPI_VERSION, '10.0.14', '<')
-                    ) {
-                        $label_class = 'col-xxl-5';
-                        $input_class = 'col-xxl-7';
-                    }
 
                     $template = "@costs/billable_dropdown.html.twig";
                     $template_options = [
                         'billable' => $billable,
-                        'options'  => [
-                            'field_class' => 'col-12',
-                            'label_class' => $label_class,
-                            'input_class' => $input_class,
-                        ]
                     ];
                     TemplateRenderer::getInstance()->display($template, $template_options);
                 }
@@ -238,7 +222,7 @@ class PluginCostsTicket extends CommonDBTM
             if ($cost_ticket->getFromDBByTicket($ticket->fields['id'])) {
                 $cost_ticket->update([
                     'billable'  => $ticket->input['cost_billable'],
-                    'id'        => $cost_ticket->getID()
+                    'id'        => $cost_ticket->getID(),
                 ]);
             }
         }
@@ -265,15 +249,14 @@ class PluginCostsTicket extends CommonDBTM
             $migration->displayMessage("Installing $table");
 
             $query = "CREATE TABLE IF NOT EXISTS `$table` (
-                    `id` int {$default_key_sign} NOT NULL auto_increment,
-                    `tickets_id` int {$default_key_sign} NOT NULL,
-                    `billable` tinyint NOT NULL DEFAULT '0',
-                    PRIMARY KEY (`id`),
-                    KEY `tickets_id` (`tickets_id`),
-                    KEY `billable` (`billable`)
-                ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
-                COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-            $DB->doQueryOrDie($query, $DB->error());
+                `id` int {$default_key_sign} NOT NULL auto_increment,
+                `tickets_id` int {$default_key_sign} NOT NULL,
+                `billable` tinyint NOT NULL DEFAULT '0',
+                PRIMARY KEY (`id`),
+                KEY `tickets_id` (`tickets_id`),
+                KEY `billable` (`billable`)
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            $DB->doQuery($query);
         } else {
             if ($DB->fieldExists($table, 'costs_id')) {
                 if (!$DB->tableExists('glpi_plugin_costs_tasks')) {
@@ -289,10 +272,10 @@ class PluginCostsTicket extends CommonDBTM
                         'glpi_ticketcosts' => [
                             'FKEY' => [
                                 'glpi_ticketcosts'  => 'id',
-                                $table              => 'costs_id'
-                            ]
-                        ]
-                    ]
+                                $table              => 'costs_id',
+                            ],
+                        ],
+                    ],
                 ];
                 $taskcost = new PluginCostsTask();
                 foreach ($DB->request($query) as $id => $row) {
@@ -312,7 +295,7 @@ class PluginCostsTicket extends CommonDBTM
                 $migration->dropKey($table, 'costs_id');
 
                 $clear_data = "TRUNCATE TABLE $table";
-                $DB->request($clear_data);
+                $DB->doQuery($clear_data);
             }
         }
         $migration->executeMigration();

@@ -3,7 +3,7 @@
 /**
  * -------------------------------------------------------------------------
  * Costs plugin for GLPI
- * Copyright (C) 2018-2024 by the TICgal Team.
+ * Copyright (C) 2018 - 2026 by the TICGAL Team.
  *
  * https://github.com/ticgal/costs
  * -------------------------------------------------------------------------
@@ -25,8 +25,8 @@
  * along with Costs. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
  * @package   Costs
- * @author    the TICgal team
- * @copyright Copyright (c) 2018-2024 TICgal team
+ * @author    the TICGAL team
+ * @copyright Copyright (C) 2018 - 2026 TICGAL team
  * @license   AGPL License 3.0 or (at your option) any later version
  *             http://www.gnu.org/licenses/agpl-3.0-standalone.html
  * @link      https://tic.gal
@@ -36,15 +36,13 @@
 
 use Glpi\Event;
 
-include('../../../inc/includes.php');
-
 if (!Plugin::isPluginActive('costs')) {
-    Html::displayNotFoundError();
+    throw new \Glpi\Exception\Http\NotFoundHttpException();
 }
 
 Session::checkLoginUser();
 
-$entity_profile = new PluginCostsEntity_Profile();
+$entity_profile = new PluginCostsEntityProfile();
 if (isset($_POST["add"])) {
     if ($entity_profile->add($_POST)) {
         Event::log(
@@ -52,10 +50,9 @@ if (isset($_POST["add"])) {
             'entity',
             4,
             "tracking",
-            sprintf(__('link with %1$s'), Profile::getFriendlyNameById($_POST["profiles_id"]))
+            sprintf(__('link with %1$s'), Profile::getFriendlyNameById($_POST["profiles_id"])),
         );
     }
     Html::back();
 }
-
-Html::displayErrorAndDie("lost");
+throw new \Glpi\Exception\Http\BadRequestHttpException();

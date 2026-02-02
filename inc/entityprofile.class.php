@@ -3,7 +3,7 @@
 /**
  * -------------------------------------------------------------------------
  * Costs plugin for GLPI
- * Copyright (C) 2018-2024 by the TICgal Team.
+ * Copyright (C) 2018 - 2026 by the TICGAL Team.
  *
  * https://github.com/ticgal/costs
  * -------------------------------------------------------------------------
@@ -25,8 +25,8 @@
  * along with Costs. If not, see <http://www.gnu.org/licenses/>.
  * -------------------------------------------------------------------------
  * @package   Costs
- * @author    the TICgal team
- * @copyright Copyright (c) 2018-2024 TICgal team
+ * @author    the TICGAL team
+ * @copyright Copyright (C) 2018 - 2026 TICGAL team
  * @license   AGPL License 3.0 or (at your option) any later version
  *             http://www.gnu.org/licenses/agpl-3.0-standalone.html
  * @link      https://tic.gal
@@ -34,12 +34,22 @@
  * -------------------------------------------------------------------------
  */
 
-class PluginCostsEntity_Profile extends CommonDBRelation
+class PluginCostsEntityProfile extends CommonDBRelation
 {
     public static $itemtype_1 = 'Entity';
     public static $items_id_1 = 'entities_id';
     public static $itemtype_2 = 'Profile';
     public static $items_id_2 = 'profiles_id';
+
+    public function getForbiddenStandardMassiveAction(): array
+    {
+        $forbidden   = parent::getForbiddenStandardMassiveAction();
+        $forbidden[] = 'update';
+        $forbidden[] = 'clone';
+        $forbidden[] = 'add_transfer_list';
+
+        return $forbidden;
+    }
 
     /**
      * showForEntity
@@ -190,8 +200,8 @@ class PluginCostsEntity_Profile extends CommonDBRelation
         $query = [
             'FROM' => self::getTable(),
             'WHERE' => [
-                'entities_id' => $entities_id
-            ]
+                'entities_id' => $entities_id,
+            ],
         ];
         if ($only_id) {
             foreach ($DB->request($query) as $row) {
@@ -232,19 +242,18 @@ class PluginCostsEntity_Profile extends CommonDBRelation
 				`time_cost` float NOT NULL default '0',
 				PRIMARY KEY (`id`),
 				UNIQUE KEY `unicity` (`entities_id`,`profiles_id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
-            COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-            $DB->doQueryOrDie($query, $DB->error());
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            $DB->doQuery($query);
         }
     }
 
     /**
-     * unistall
+     * uninstall
      *
      * @param  Migration $migration
      * @return void
      */
-    public static function unistall(Migration $migration): void
+    public static function uninstall(Migration $migration): void
     {
         $table = self::getTable();
         $migration->displayMessage("Uninstalling $table");

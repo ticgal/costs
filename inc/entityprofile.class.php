@@ -79,11 +79,11 @@ class PluginCostsEntityProfile extends CommonDBRelation
             echo "</td>";
             echo "<td>" . __('Fixed cost') . "</td>";
             echo "<td>";
-            Dropdown::showNumber('fixed_cost', ['step' => PLUGIN_COSTS_NUMBER_STEP,'rand' => $rand,'toadd' => [0 => Dropdown::EMPTY_VALUE]]);
+            Dropdown::showNumber('fixed_cost', ['step' => PLUGIN_COSTS_NUMBER_STEP,'rand' => $rand,'toadd' => [0 => Dropdown::EMPTY_VALUE], 'max' => 1000]);
             echo "</td>";
             echo "<td>" . __('Time cost') . "</td>";
             echo "<td>";
-            Dropdown::showNumber('time_cost', ['step' => PLUGIN_COSTS_NUMBER_STEP,'rand' => $rand,'toadd' => [0 => Dropdown::EMPTY_VALUE]]);
+            Dropdown::showNumber('time_cost', ['step' => PLUGIN_COSTS_NUMBER_STEP,'rand' => $rand,'toadd' => [0 => Dropdown::EMPTY_VALUE], 'max' => 1000]);
             echo "</td>";
             echo "<td class='center'>";
             echo "<input type='submit' name='add' value=\"" . _sx('button', 'Add') . "\" class='submit'>";

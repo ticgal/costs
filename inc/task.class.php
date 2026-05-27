@@ -329,4 +329,9 @@ class PluginCostsTask extends CommonDBTM
 
         $migration->executeMigration();
     }
+
+    public static function uninstall(Migration $migration): void
+    {
+        $migration->dropTable(self::getTable());
+    }
 }

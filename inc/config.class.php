@@ -184,4 +184,14 @@ class PluginCostsConfig extends CommonDBTM
             ]);
         }
     }
+
+    /**
+     * @param  Migration $migration
+     *
+     * @return void
+     */
+    public static function uninstall(Migration $migration): void
+    {
+        $migration->dropTable(self::getTable());
+    }
 }

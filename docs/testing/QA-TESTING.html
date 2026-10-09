@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Costs plugin — QA acceptance checklist</title>
+<style>
+  body { font-family: sans-serif; font-size: 14px; margin: 1.5em; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 2em; }
+  th, td { border: 1px solid #999; padding: 6px; vertical-align: top; text-align: left; }
+  th { background: #eee; }
+  td:nth-child(5), td:nth-child(6) { min-width: 6em; }
+</style>
+</head>
+<body>
+<!-- qa-testing-format: 1 -->
+<h1>Costs plugin — QA acceptance checklist (5.0.0, GLPI 12)</h1>
+<p>Run every check on a GLPI 12.0 instance with the plugin installed and enabled. Fill in <strong>Result</strong> with <code>OK</code> or <code>KO</code> only; use <strong>Comments</strong> for the error message, a screenshot reference or a note on what went wrong.</p>
+<p>Preparation: two sibling entities <em>A</em> and <em>B</em> under the root entity; a super-admin; a user with the <em>Admin</em> profile only in entity B (not recursive); a <em>Technician</em> in entity A; a <em>Self-Service</em> user in entity A.</p>
+<p>Every check below writes only to the GLPI database of the test instance (<code>[live write]</code> where it creates or changes records). Nothing is sent outside GLPI.</p>
+
+<h2>Configuration</h2>
+<table>
+<tr><th>#</th><th>Check</th><th>Steps</th><th>Expected</th><th>Result</th><th>Comments</th></tr>
+<tr><td>1</td><td>Plugin configuration requires re-authentication</td><td>Log in as super-admin, go to Setup &gt; Plugins and open the Costs configuration (or Setup &gt; General &gt; Costs tab).</td><td>GLPI asks for the password again before showing the page, like the core configuration.</td><td></td><td></td></tr>
+<tr><td>2</td><td>[live write] Enable "Add task description on cost"</td><td>After re-authenticating, enable the option and save.</td><td>The option stays enabled after reloading the page.</td><td></td><td></td></tr>
+<tr><td>3</td><td>[live write] Entity cost settings</td><td>Administration &gt; Entities &gt; A &gt; Costs tab. Disable "Inheritance of the parent entity", set Fixed cost 5, Time cost 30, Auto billable ticket Yes, save.</td><td>The values are kept after reloading; the per-profile section is shown below.</td><td></td><td></td></tr>
+<tr><td>4</td><td>Inherited settings are read-only</td><td>In entity B's Costs tab, enable inheritance and save.</td><td>The parent's values are shown in blue with an arrow icon and cannot be edited; the parent's per-profile costs are listed.</td><td></td><td></td></tr>
+<tr><td>5</td><td>[live write] Per-profile cost</td><td>In entity A's Costs tab, add the Technician profile with Fixed cost 2 and Time cost 50.</td><td>The row appears in the list; the Technician profile is no longer offered in the dropdown.</td><td></td><td></td></tr>
+<tr><td>6</td><td>[live write] Remove a per-profile cost</td><td>Select the row with the checkbox, Actions &gt; Delete permanently.</td><td>The row disappears.</td><td></td><td></td></tr>
+</table>
+
+<h2>Tickets and tasks</h2>
+<table>
+<tr><th>#</th><th>Check</th><th>Steps</th><th>Expected</th><th>Result</th><th>Comments</th></tr>
+<tr><td>7</td><td>Billable field on the ticket form</td><td>As super-admin create a new ticket in entity A.</td><td>A "Billable" checkbox is shown, ticked by default (Auto billable ticket = Yes).</td><td></td><td></td></tr>
+<tr><td>8</td><td>[live write] Done task creates a cost</td><td>In that ticket add a task, status Done, duration 1 hour, technician = yourself.</td><td>The Costs tab of the ticket shows a cost of 1 hour at 30 per hour plus 5 fixed; its description contains the task text as plain text.</td><td></td><td></td></tr>
+<tr><td>9</td><td>[live write] Editing the task updates the cost</td><td>Edit the task, change the duration to 2 hours.</td><td>The same cost now shows 2 hours (no second cost line).</td><td></td><td></td></tr>
+<tr><td>10</td><td>[live write] To-do and private tasks</td><td>Add a task with status To do; then a private task with status Done.</td><td>Neither creates a cost (private tasks only count if "Private task" is Yes for the entity).</td><td></td><td></td></tr>
+<tr><td>11</td><td>[live write] Non-billable ticket</td><td>Untick Billable on the ticket, save, add a Done task.</td><td>No cost is created.</td><td></td><td></td></tr>
+<tr><td>12</td><td>Search by Billable</td><td>Assistance &gt; Tickets, search "Billable" is "Yes".</td><td>Only billable tickets are listed; the Billable column can be displayed.</td><td></td><td></td></tr>
+</table>
+
+<h2>Permissions</h2>
+<table>
+<tr><th>#</th><th>Check</th><th>Steps</th><th>Expected</th><th>Result</th><th>Comments</th></tr>
+<tr><td>13</td><td>Self-service users do not see Billable</td><td>As the Self-Service user, open a new ticket form and one of your tickets.</td><td>No Billable field anywhere.</td><td></td><td></td></tr>
+<tr><td>14</td><td>[live write] Requesters cannot make their ticket non-billable</td><td>As the Self-Service user create a ticket in entity A, then (as super-admin) check its Billable value.</td><td>Billable = Yes (the entity default), whatever the requester sent.</td><td></td><td></td></tr>
+<tr><td>15</td><td>Technician without entity rights</td><td>As the Technician, open Administration &gt; Entities &gt; A.</td><td>No Costs tab; the entity costs cannot be changed.</td><td></td><td></td></tr>
+<tr><td>16</td><td>Entity isolation</td><td>As the Admin of entity B, open entity B and then try to reach entity A.</td><td>Entity B's Costs tab works; entity A is not visible, and its costs cannot be changed.</td><td></td><td></td></tr>
+</table>
+
+<h2>Known limitations</h2>
+<ul>
+  <li>The cost rate used for a task is the one of the technician's <em>default</em> profile, not the profile active when the task was closed.</li>
+  <li>Costs are only generated for ticket tasks (not change, problem or project tasks).</li>
+  <li>The "Costs Tech" report needs the separate <em>reports</em> plugin; without it the report URL answers "not found".</li>
+  <li>Fixed and time costs accept whole numbers only in the entity form (step of 1).</li>
+</ul>
+</body>
+</html>

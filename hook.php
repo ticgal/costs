@@ -34,6 +34,28 @@
  * -------------------------------------------------------------------------
  */
 
+use GlpiPlugin\Costs\Config as CostsConfig;
+use GlpiPlugin\Costs\Entity as CostsEntity;
+use GlpiPlugin\Costs\EntityProfile;
+use GlpiPlugin\Costs\Task as CostsTask;
+use GlpiPlugin\Costs\Ticket as CostsTicket;
+
+/**
+ * Plugin classes owning a table, in install order
+ *
+ * @return array<class-string>
+ */
+function plugin_costs_getClasses(): array
+{
+    return [
+        CostsConfig::class,
+        CostsEntity::class,
+        EntityProfile::class,
+        CostsTask::class,
+        CostsTicket::class,
+    ];
+}
+
 /**
  * plugin_costs_install
  *
@@ -43,17 +65,8 @@ function plugin_costs_install(): bool
 {
     $migration = new Migration(PLUGIN_COSTS_VERSION);
 
-    // Parse inc directory
-    foreach (glob(dirname(__FILE__) . '/inc/*') as $filepath) {
-        // Load *.class.php files and get the class name
-        if (preg_match("/inc.(.+)\.class.php/", $filepath, $matches)) {
-            $classname = 'PluginCosts' . ucfirst($matches[1]);
-            include_once($filepath);
-            // If the install method exists, load it
-            if (method_exists($classname, 'install')) {
-                $classname::install($migration);
-            }
-        }
+    foreach (plugin_costs_getClasses() as $classname) {
+        $classname::install($migration);
     }
     return true;
 }
@@ -67,31 +80,22 @@ function plugin_costs_uninstall(): bool
 {
     $migration = new Migration(PLUGIN_COSTS_VERSION);
 
-    // Parse inc directory
-    foreach (glob(dirname(__FILE__) . '/inc/*') as $filepath) {
-        // Load *.class.php files and get the class name
-        if (preg_match("/inc.(.+)\.class.php/", $filepath, $matches)) {
-            $classname = 'PluginCosts' . ucfirst($matches[1]);
-            include_once($filepath);
-            // If the install method exists, load it
-            if (method_exists($classname, 'uninstall')) {
-                $classname::uninstall($migration);
-            }
-        }
+    foreach (plugin_costs_getClasses() as $classname) {
+        $classname::uninstall($migration);
     }
     return true;
 }
 
 /**
- * plugin_costs_getAddSearchOptions
+ * plugin_costs_getAddSearchOptionsNew
  *
  * @param  mixed $itemtype
  * @return array
  */
-function plugin_costs_getAddSearchOptions($itemtype): array
+function plugin_costs_getAddSearchOptionsNew($itemtype): array
 {
     if ($itemtype == Ticket::getType()) {
-        return PluginCostsTicket::rawSearchOptionsToAdd();
+        return CostsTicket::rawSearchOptionsToAdd();
     }
 
     return [];

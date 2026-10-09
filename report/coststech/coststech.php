@@ -34,13 +34,11 @@
  * -------------------------------------------------------------------------
  */
 
-$USEDBREPLICATE = 1;
-$DBCONNECTION_REQUIRED = 0;
+use Glpi\Exception\Http\NotFoundHttpException;
 
-include("../../../../inc/includes.php");
-
-if (!Plugin::isPluginActive('reports')) {
-    exit;
+// This report is built on top of the "reports" plugin
+if (!Plugin::isPluginActive('reports') || !class_exists(PluginReportsAutoReport::class)) {
+    throw new NotFoundHttpException();
 }
 
 $report = new PluginReportsAutoReport(__('CostsTech'));
@@ -87,10 +85,14 @@ $report->setColumns([
     ),
 ]);
 
-$query = "SELECT glpi_tickets.entities_id,glpi_users.profiles_id,SUM(glpi_tickettasks.actiontime) AS duration, SUM(`glpi_ticketcosts`.`actiontime` * `glpi_ticketcosts`.`cost_time`/3600 + `glpi_ticketcosts`.`cost_fixed` + `glpi_ticketcosts`.`cost_material`) AS totalcost FROM glpi_tickettasks INNER JOIN glpi_tickets ON glpi_tickets.id=glpi_tickettasks.tickets_id INNER JOIN glpi_plugin_costs_tasks ON glpi_plugin_costs_tasks.tasks_id=glpi_tickettasks.id INNER JOIN glpi_ticketcosts ON glpi_ticketcosts.id=glpi_plugin_costs_tasks.costs_id INNER JOIN glpi_users ON glpi_users.id=glpi_tickettasks.users_id_tech WHERE glpi_tickets.status>=" . Ticket::SOLVED . " AND glpi_tickets.is_deleted=0 ";
+// 5 = Ticket::SOLVED (literal: the raw SQL required by PluginReportsAutoReport takes no concatenated values)
+$query = "SELECT glpi_tickets.entities_id,glpi_users.profiles_id,SUM(glpi_tickettasks.actiontime) AS duration, SUM(`glpi_ticketcosts`.`actiontime` * `glpi_ticketcosts`.`cost_time`/3600 + `glpi_ticketcosts`.`cost_fixed` + `glpi_ticketcosts`.`cost_material`) AS totalcost FROM glpi_tickettasks INNER JOIN glpi_tickets ON glpi_tickets.id=glpi_tickettasks.tickets_id INNER JOIN glpi_plugin_costs_tasks ON glpi_plugin_costs_tasks.tasks_id=glpi_tickettasks.id INNER JOIN glpi_ticketcosts ON glpi_ticketcosts.id=glpi_plugin_costs_tasks.costs_id INNER JOIN glpi_users ON glpi_users.id=glpi_tickettasks.users_id_tech WHERE glpi_tickets.status>=5 AND glpi_tickets.is_deleted=0 ";
 $group = " GROUP BY glpi_tickets.entities_id,glpi_users.profiles_id";
 
 $query .= $report->addSqlCriteriasRestriction();
+// Only the costs of the entities the user is working on
+$entities = array_map('intval', Session::getActiveEntities());
+$query .= " AND glpi_tickets.entities_id IN (" . (count($entities) ? implode(',', $entities) : '-1') . ")";
 $query .= $group;
 
 $report->setSqlRequest($query);

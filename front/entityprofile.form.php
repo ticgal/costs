@@ -35,22 +35,25 @@
  */
 
 use Glpi\Event;
+use GlpiPlugin\Costs\EntityProfile;
 
 if (!Plugin::isPluginActive('costs')) {
     throw new \Glpi\Exception\Http\NotFoundHttpException();
 }
 
-Session::checkLoginUser();
+Session::checkRight('entity', UPDATE);
 
-$entity_profile = new PluginCostsEntityProfile();
+$entity_profile = new EntityProfile();
 if (isset($_POST["add"])) {
+    // entity UPDATE right and access to the target entity
+    $entity_profile->check(-1, CREATE, $_POST);
     if ($entity_profile->add($_POST)) {
         Event::log(
-            $_POST['entities_id'],
+            (int) $_POST['entities_id'],
             'entity',
             4,
             "tracking",
-            sprintf(__('link with %1$s'), Profile::getFriendlyNameById($_POST["profiles_id"])),
+            sprintf(__('link with %1$s'), Profile::getFriendlyNameById((int) $_POST["profiles_id"])),
         );
     }
     Html::back();

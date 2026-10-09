@@ -34,17 +34,28 @@
  * -------------------------------------------------------------------------
  */
 
+use GlpiPlugin\Costs\Entity;
+
 if (!Plugin::isPluginActive('costs')) {
     throw new \Glpi\Exception\Http\NotFoundHttpException();
 }
 
-Session::haveRight("entity", UPDATE);
+Session::checkRight('entity', UPDATE);
 
-$Entity             = new Entity();
-$PluginCostsEntity  = new PluginCostsEntity();
+$cost_config = new Entity();
 
 if (isset($_POST["plugin_cost_update"])) {
-    $PluginCostsEntity->update($_POST);
+    $id = (int) ($_POST['id'] ?? 0);
+    // entity UPDATE right and access to the entity the settings belong to
+    $cost_config->check($id, UPDATE);
+
+    $input = ['id' => $id];
+    foreach (['fixed_cost', 'time_cost', 'cost_private', 'auto_cost', 'inheritance'] as $field) {
+        if (isset($_POST[$field])) {
+            $input[$field] = $_POST[$field];
+        }
+    }
+    $cost_config->update($input);
     Html::back();
 }
 

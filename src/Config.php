@@ -1,0 +1,214 @@
+<?php
+
+/**
+ * -------------------------------------------------------------------------
+ * Costs plugin for GLPI
+ * Copyright (C) 2018 - 2026 by the TICGAL Team.
+ *
+ * https://github.com/ticgal/costs
+ * -------------------------------------------------------------------------
+ * LICENSE
+ *
+ * This file is part of the Costs plugin.
+ *
+ * Costs plugin is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Costs plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Costs. If not, see <http://www.gnu.org/licenses/>.
+ * -------------------------------------------------------------------------
+ * @package   Costs
+ * @author    the TICGAL team
+ * @copyright Copyright (C) 2018 - 2026 TICGAL team
+ * @license   AGPL License 3.0 or (at your option) any later version
+ *             http://www.gnu.org/licenses/agpl-3.0-standalone.html
+ * @link      https://tic.gal
+ * @since     2018
+ * -------------------------------------------------------------------------
+ */
+
+namespace GlpiPlugin\Costs;
+
+use CommonDBTM;
+use CommonGLPI;
+use DBConnection;
+use Glpi\Application\View\TemplateRenderer;
+use Migration;
+
+class Config extends CommonDBTM
+{
+    public static string $rightname = 'config';
+    public const KEEP_ALL = 'all';
+    private static ?self $instance = null;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct()
+    {
+        /** @var \DBmysql $DB */
+        global $DB;
+        if ($DB->tableExists(self::getTable())) {
+            $this->getFromDB(1);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function getTypeName($nb = 0): string
+    {
+        return __("Costs", "costs");
+    }
+
+    public static function getIcon(): string
+    {
+        return PLUGIN_COSTS_ICON;
+    }
+
+    /**
+     * Same as the core configuration: changing it asks for re-authentication (GLPI 12).
+     */
+    protected static function itemTypeRequiresReauthentication(): bool
+    {
+        return true;
+    }
+
+    /**
+     * getInstance
+     *
+     * @param  int $n
+     * @return Config
+     */
+    public static function getInstance(int $n = 1): Config
+    {
+        if (!isset(self::$instance)) {
+            self::$instance = new self();
+            if (!self::$instance->getFromDB($n)) {
+                self::$instance->getEmpty();
+            }
+        }
+
+        return self::$instance;
+    }
+
+    /**
+     * getConfig
+     *
+     * @param  bool $update
+     * @return Config
+     */
+    public static function getConfig(bool $update = false): Config
+    {
+        static $config = null;
+        if (is_null($config)) {
+            $config = new self();
+        }
+        if ($update) {
+            $config->getFromDB(1);
+        }
+
+        return $config;
+    }
+
+    /**
+     * Summary of showConfigForm
+     *
+     * @return boolean
+     */
+    public static function showConfigForm(): bool
+    {
+        /** @var \DBmysql $DB */
+        global $DB;
+
+        $config = self::getInstance();
+
+        $options = [
+            'full_width' => true,
+        ];
+
+        TemplateRenderer::getInstance()->display('@costs/config.html.twig', [
+            'item' => $config,
+            'options' => $options,
+        ]);
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
+    {
+        if ($item->getType() == 'Config') {
+            return self::createTabEntry(__("Costs", "costs"));
+        }
+
+        return '';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0): bool
+    {
+        if ($item->getType() == 'Config') {
+            return self::showConfigForm();
+        }
+
+        return false;
+    }
+
+    /**
+     * install
+     *
+     * @param  Migration $migration
+     * @return void
+     */
+    public static function install(Migration $migration): void
+    {
+        /** @var \DBmysql $DB */
+        global $DB;
+
+        $default_charset    = DBConnection::getDefaultCharset();
+        $default_collation  = DBConnection::getDefaultCollation();
+        $default_key_sign   = DBConnection::getDefaultPrimaryKeySignOption();
+
+        $table  = self::getTable();
+        if (!$DB->tableExists($table)) {
+            $migration->displayMessage("Installing $table");
+            $query = "CREATE TABLE `$table` (
+                `id` INT {$default_key_sign} NOT NULL AUTO_INCREMENT,
+                `taskdescription` TINYINT NOT NULL DEFAULT '0',
+                PRIMARY KEY  (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            $DB->doQuery($query);
+
+            $config = new self();
+            $config->add([
+                'id'                => 1,
+                'taskdescription'   => 0,
+            ]);
+        }
+    }
+
+    /**
+     * uninstall
+     *
+     * @param  Migration $migration
+     * @return void
+     */
+    public static function uninstall(Migration $migration): void
+    {
+        $table = self::getTable();
+        $migration->displayMessage("Uninstalling $table");
+        $migration->dropTable($table);
+    }
+}

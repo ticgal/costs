@@ -13,7 +13,7 @@ msgstr ""
 #: inc/entity.class.php:53 inc/task.class.php:49 inc/config.class.php:64
 #: inc/config.class.php:134 inc/ticket.class.php:51
 msgid "Costs"
-msgstr "costs"
+msgstr "Costs"
 
 #: inc/ticket.class.php:67 templates/billable_dropdown.html.twig:42
 msgid "Billable"

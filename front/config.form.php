@@ -34,13 +34,18 @@
  * -------------------------------------------------------------------------
  */
 
+use GlpiPlugin\Costs\Config;
+
 if (!Plugin::isPluginActive('costs')) {
     throw new \Glpi\Exception\Http\NotFoundHttpException();
 }
 
-$config = new PluginCostsConfig();
+// same as the core configuration (GLPI 12)
+Config::checkReAuthenticationOrRedirect();
+
+$config = new Config();
 if (isset($_POST["update"])) {
-    $config->check($_POST['id'], UPDATE);
+    $config->check((int) $_POST['id'], UPDATE);
     $config->update($_POST);
     Html::back();
 }
@@ -48,5 +53,5 @@ if (isset($_POST["update"])) {
 global $CFG_GLPI;
 
 $redirect = $CFG_GLPI["root_doc"] . "/front/config.form.php";
-$redirect .= "?forcetab=" . urlencode('PluginCostsConfig$1');
+$redirect .= "?forcetab=" . urlencode(Config::class . '$1');
 Html::redirect($redirect);

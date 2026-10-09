@@ -35,13 +35,17 @@
  ---------------------------------------------------------------------- */
 
 use Glpi\Plugin\Hooks;
+use GlpiPlugin\Costs\Config as CostsConfig;
+use GlpiPlugin\Costs\Entity as CostsEntity;
+use GlpiPlugin\Costs\Task as CostsTask;
+use GlpiPlugin\Costs\Ticket as CostsTicket;
 
-define('PLUGIN_COSTS_VERSION', '4.0.0');
+define('PLUGIN_COSTS_VERSION', '5.0.0-beta.1');
 // Minimal GLPI version, inclusive
-define("PLUGIN_COSTS_MIN_GLPI", "11.0");
+define("PLUGIN_COSTS_MIN_GLPI", "12.0.0");
 // Maximum GLPI version, exclusive
-define("PLUGIN_COSTS_MAX_GLPI", "11.9");
-define("PLUGIN_COSTS_ICON", "fa-solid fa-money-bill-wave");
+define("PLUGIN_COSTS_MAX_GLPI", "12.1.0");
+define("PLUGIN_COSTS_ICON", "ti ti-cash");
 
 /** @var array $CFG_GLPI */
 global $CFG_GLPI;
@@ -49,10 +53,15 @@ if (!defined('PLUGIN_COSTS_NUMBER_STEP')) {
     define("PLUGIN_COSTS_NUMBER_STEP", 1 / pow(1, $CFG_GLPI["decimal_number"]));
 }
 
-function plugin_version_costs()
+/**
+ * plugin_version_costs
+ *
+ * @return array
+ */
+function plugin_version_costs(): array
 {
     return [
-        'name'       => 'Costs',
+        'name'           => 'Costs',
         'version'        => PLUGIN_COSTS_VERSION,
         'author'         => '<a href="https://tic.gal">TICGAL</a>',
         'homepage'       => 'https://tic.gal/en/project/costs-control-plugin-glpi/',
@@ -66,29 +75,34 @@ function plugin_version_costs()
     ];
 }
 
-function plugin_init_costs()
+/**
+ * plugin_init_costs
+ *
+ * @return void
+ */
+function plugin_init_costs(): void
 {
     /** @var array $PLUGIN_HOOKS */
     global $PLUGIN_HOOKS;
 
     if (Session::haveRight('entity', UPDATE)) {
-        Plugin::registerClass('PluginCostsEntity', ['addtabon' => 'Entity']);
+        Plugin::registerClass(CostsEntity::class, ['addtabon' => Entity::class]);
     }
     if (Session::haveRightsOr("config", [READ, UPDATE])) {
-        Plugin::registerClass('PluginCostsConfig', ['addtabon' => 'Config']);
+        Plugin::registerClass(CostsConfig::class, ['addtabon' => Config::class]);
         $PLUGIN_HOOKS[Hooks::CONFIG_PAGE]['costs'] = 'front/config.form.php';
     }
 
     $PLUGIN_HOOKS[Hooks::PRE_ITEM_UPDATE]['costs'] = [
-        'Ticket' => ['PluginCostsTicket', 'ticketUpdate'],
-        'TicketTask' => ['PluginCostsTask', 'preTaskUpdate'],
+        Ticket::class     => [CostsTicket::class, 'ticketUpdate'],
+        TicketTask::class => [CostsTask::class, 'preTaskUpdate'],
     ];
-    $PLUGIN_HOOKS[Hooks::POST_ITEM_FORM]['costs'] = ['PluginCostsTicket', 'postItemForm'];
+    $PLUGIN_HOOKS[Hooks::POST_ITEM_FORM]['costs'] = [CostsTicket::class, 'postItemForm'];
     $PLUGIN_HOOKS[Hooks::ITEM_ADD]['costs'] = [
-        'Ticket' => ['PluginCostsTicket', 'ticketAdd'],
-        'TicketTask' => ['PluginCostsTask', 'taskAdd'],
+        Ticket::class     => [CostsTicket::class, 'ticketAdd'],
+        TicketTask::class => [CostsTask::class, 'taskAdd'],
     ];
     $PLUGIN_HOOKS[Hooks::ITEM_PURGE]['costs'] = [
-        'TicketTask' => ['PluginCostsTask', 'taskPurge'],
+        TicketTask::class => [CostsTask::class, 'taskPurge'],
     ];
 }

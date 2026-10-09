@@ -1,6 +1,27 @@
 # Costs
 The cost plugin for GLPI
 
+## [5.0.0-beta.1] - Unreleased
+## Features
+- GLPI 12 compatibility (GLPI 12.0.x only)
+- Classes moved to `src/` (`GlpiPlugin\Costs\*`); the legacy `PluginCosts*` names are kept as deprecated aliases for other plugins
+- Plugin configuration asks for re-authentication, like the core configuration
+## Security
+- Entity cost settings and per-profile costs can only be changed by users with the entity update right on that entity
+- The billable flag can only be set by central users allowed to update tickets
+- Escape profile names and values in the entity costs tab
+- Costs report restricted to the active entities
+## Fixed
+- "Billable" search option on tickets was not registered
+- Bulk delete of per-profile costs in the entity tab ("No selected items")
+- "Costs" tab label shown in lowercase in English (US)
+- Uninstall now removes all the plugin tables
+- Task description copied to the cost comment without HTML double encoding
+- Cost of an updated task uses the profile of the assigned technician
+- PHP warnings when a task is updated without state or without technician
+## Removed
+- Unused QR code dependency
+
 ## [4.0.0] - 2026-01-27
 ## Features
 - GLPI 11 compatibility

@@ -129,7 +129,7 @@ class PluginCostsEntityProfile extends CommonDBRelation
                 echo "</td>";
             }
             echo "<td class='center'>";
-            echo Dropdown::getDropdownName("glpi_profiles", $data['profiles_id']) . "</td>";
+            echo htmlescape(Dropdown::getDropdownName("glpi_profiles", $data['profiles_id'])) . "</td>";
             echo "<td class='center'>" . $data["fixed_cost"] . "</td>";
             echo "<td class='center'>" . $data["time_cost"] . "</td>";
             echo "</tr>";
@@ -171,7 +171,7 @@ class PluginCostsEntityProfile extends CommonDBRelation
         foreach ($list as $data) {
             echo "<tr class='tab_bg_1' style='color:rgb(34, 77, 194);padding: 5px;margin: 3px 0;border: 1px solid transparent;border-radius: 2px;background-color: rgba(34, 77, 194, .1);white-space: nowrap;font-style: italic;'>";
             echo "<td class='center'><i style='margin-right: 2px;font-size: 0.7em;' class='fas fa-level-down-alt'></i>";
-            echo Dropdown::getDropdownName("glpi_profiles", $data['profiles_id']) . "</td>";
+            echo htmlescape(Dropdown::getDropdownName("glpi_profiles", $data['profiles_id'])) . "</td>";
             echo "<td class='center'>" . $data["fixed_cost"] . "</td>";
             echo "<td class='center'>" . $data["time_cost"] . "</td>";
             echo "</tr>";

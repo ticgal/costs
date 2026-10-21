@@ -144,6 +144,21 @@ class PluginCostsTicket extends CommonDBTM
     }
 
     /**
+     * Only users with ticket UPDATE can set the billable flag of a ticket they can update
+     *
+     * @param  Ticket $ticket
+     * @return bool
+     */
+    public static function canSetBillable(Ticket $ticket): bool
+    {
+        if (!Session::haveRight(Ticket::$rightname, UPDATE)) {
+            return false;
+        }
+
+        return $ticket->isNewItem() || $ticket->canUpdateItem();
+    }
+
+    /**
      * postItemForm
      *
      * @param  mixed $params
@@ -179,6 +194,7 @@ class PluginCostsTicket extends CommonDBTM
                     $template = "@costs/billable_dropdown.html.twig";
                     $template_options = [
                         'billable' => $billable,
+                        'canedit'  => self::canSetBillable($item),
                     ];
                     TemplateRenderer::getInstance()->display($template, $template_options);
                 }
@@ -194,8 +210,8 @@ class PluginCostsTicket extends CommonDBTM
      */
     public static function ticketAdd(Ticket $ticket): void
     {
-        if (array_key_exists('cost_billable', $ticket->input)) {
-            $billable = $ticket->input['cost_billable'];
+        if (array_key_exists('cost_billable', $ticket->input) && self::canSetBillable($ticket)) {
+            $billable = (int) (bool) $ticket->input['cost_billable'];
         } else {
             $cost_config = new PluginCostsEntity();
             $cost_config->getFromDBByEntity($ticket->input['entities_id']);
@@ -217,14 +233,23 @@ class PluginCostsTicket extends CommonDBTM
      */
     public static function ticketUpdate(Ticket $ticket): void
     {
-        if (is_array($ticket->input) && array_key_exists('cost_billable', $ticket->input)) {
-            $cost_ticket = new self();
-            if ($cost_ticket->getFromDBByTicket($ticket->fields['id'])) {
-                $cost_ticket->update([
-                    'billable'  => $ticket->input['cost_billable'],
-                    'id'        => $cost_ticket->getID(),
-                ]);
-            }
+        if (!is_array($ticket->input) || !array_key_exists('cost_billable', $ticket->input)) {
+            return;
+        }
+
+        // This hook runs before the core filters the input by the user's rights on the ticket
+        $billable = (int) (bool) $ticket->input['cost_billable'];
+        unset($ticket->input['cost_billable']);
+        if (!self::canSetBillable($ticket)) {
+            return;
+        }
+
+        $cost_ticket = new self();
+        if ($cost_ticket->getFromDBByTicket($ticket->fields['id'])) {
+            $cost_ticket->update([
+                'billable'  => $billable,
+                'id'        => $cost_ticket->getID(),
+            ]);
         }
     }
 

@@ -275,12 +275,12 @@ class PluginCostsEntity extends CommonDBTM
     }
 
     /**
-     * unistall
+     * uninstall
      *
      * @param  Migration $migration
      * @return void
      */
-    public static function unistall(Migration $migration): void
+    public static function uninstall(Migration $migration): void
     {
         $table = self::getTable();
         $migration->displayMessage("Uninstalling $table");

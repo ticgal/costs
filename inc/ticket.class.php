@@ -111,8 +111,10 @@ class PluginCostsTicket extends CommonDBTM
     /**
      * getFromDBByTicket
      *
+     * Creates the row with the entity default when it does not exist yet
+     *
      * @param  int $ticket_id
-     * @return bool
+     * @return bool false when the row had to be created
      */
     public function getFromDBByTicket(int $ticket_id): bool
     {
@@ -138,7 +140,10 @@ class PluginCostsTicket extends CommonDBTM
                 'tickets_id'    => $ticket_id,
                 'billable'      => $cost_config->fields['auto_cost'],
             ]);
-            $this->fields = ['billable' => $cost_config->fields['auto_cost']];
+            // Load the new row so callers get its id
+            if (!$this->getFromDB($DB->insertId())) {
+                $this->fields = ['billable' => $cost_config->fields['auto_cost']];
+            }
             return false;
         }
     }
@@ -245,7 +250,8 @@ class PluginCostsTicket extends CommonDBTM
         }
 
         $cost_ticket = new self();
-        if ($cost_ticket->getFromDBByTicket($ticket->fields['id'])) {
+        $cost_ticket->getFromDBByTicket($ticket->fields['id']);
+        if (!$cost_ticket->isNewItem()) {
             $cost_ticket->update([
                 'billable'  => $billable,
                 'id'        => $cost_ticket->getID(),

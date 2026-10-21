@@ -61,7 +61,7 @@ class PluginCostsEntityProfile extends CommonDBRelation
     {
         $instID = $entity->fields['id'];
 
-        $canedit = $entity->canUpdateItem();
+        $canedit = Session::haveRight('entity', UPDATE) && $entity->canUpdateItem();
         $rand    = mt_rand();
 
         if ($canedit) {

@@ -40,17 +40,34 @@ if (!Plugin::isPluginActive('costs')) {
     throw new \Glpi\Exception\Http\NotFoundHttpException();
 }
 
-Session::checkLoginUser();
+Session::checkRight("entity", UPDATE);
 
 $entity_profile = new PluginCostsEntityProfile();
 if (isset($_POST["add"])) {
-    if ($entity_profile->add($_POST)) {
+    $entities_id = (int) ($_POST['entities_id'] ?? -1);
+    $profile     = new Profile();
+    // Costs only apply to central profiles
+    if (
+        !Session::haveAccessToEntity($entities_id)
+        || !$profile->getFromDB((int) ($_POST['profiles_id'] ?? 0))
+        || $profile->fields['interface'] !== 'central'
+    ) {
+        throw new \Glpi\Exception\Http\AccessDeniedHttpException();
+    }
+
+    $input = [
+        'entities_id' => $entities_id,
+        'profiles_id' => $profile->getID(),
+        'fixed_cost'  => (float) ($_POST['fixed_cost'] ?? 0),
+        'time_cost'   => (float) ($_POST['time_cost'] ?? 0),
+    ];
+    if ($entity_profile->add($input)) {
         Event::log(
-            $_POST['entities_id'],
+            $entities_id,
             'entity',
             4,
             "tracking",
-            sprintf(__('link with %1$s'), Profile::getFriendlyNameById($_POST["profiles_id"])),
+            sprintf(__('link with %1$s'), $profile->getFriendlyName()),
         );
     }
     Html::back();

@@ -115,6 +115,7 @@ class PluginCostsEntity extends CommonDBTM
         if (!$entity->can($ID, READ)) {
             return false;
         }
+        $canedit = Session::haveRight('entity', UPDATE) && $entity->canUpdateItem();
         $cost_config = new self();
         $cost_config->getFromDBByEntity($ID);
         $inheritance = $cost_config->fields['inheritance'];
@@ -180,10 +181,12 @@ class PluginCostsEntity extends CommonDBTM
         $out .= "<input type='hidden' name='entities_id' value='$ID'>";
         $out .= "</td></tr>\n";
 
-        $out .= "<tr><td class='tab_bg_2 right'>";
-        $out .= "<input type='submit' name='plugin_cost_update' value='" . _sx('button', 'Update') . "' class='submit'>";
-        $out .= "<input type='hidden' name='id' value='" . $config_id . "'>";
-        $out .= "</td></tr>";
+        if ($canedit) {
+            $out .= "<tr><td class='tab_bg_2 right'>";
+            $out .= "<input type='submit' name='plugin_cost_update' value='" . _sx('button', 'Update') . "' class='submit'>";
+            $out .= "<input type='hidden' name='id' value='" . $config_id . "'>";
+            $out .= "</td></tr>";
+        }
         $out .= "</table>";
         $out .= Html::closeForm(false);
 

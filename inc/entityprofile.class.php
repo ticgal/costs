@@ -34,6 +34,8 @@
  * -------------------------------------------------------------------------
  */
 
+use Glpi\DBAL\QuerySubQuery;
+
 class PluginCostsEntityProfile extends CommonDBRelation
 {
     public static $itemtype_1 = 'Entity';
@@ -49,6 +51,32 @@ class PluginCostsEntityProfile extends CommonDBRelation
         $forbidden[] = 'add_transfer_list';
 
         return $forbidden;
+    }
+
+    /**
+     * Let a rate whose profile no longer exists be purged
+     *
+     * CommonDBRelation denies every right on a relation whose second item cannot be loaded,
+     * so an orphan rate could not be removed from the entity tab. The entity side is still
+     * checked.
+     *
+     * @param  array $input
+     * @return bool
+     */
+    public function isAttach2Valid(array &$input): bool
+    {
+        return true;
+    }
+
+    /**
+     * Remove the rates of a purged profile (ITEM_PURGE hook)
+     *
+     * @param  Profile $profile
+     * @return void
+     */
+    public static function cleanForProfile(Profile $profile): void
+    {
+        (new self())->deleteByCriteria(['profiles_id' => $profile->getID()], true);
     }
 
     /**
@@ -245,6 +273,14 @@ class PluginCostsEntityProfile extends CommonDBRelation
             ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
             $DB->doQuery($query);
         }
+
+        // Rates left behind by profiles or entities purged before the ITEM_PURGE hooks existed
+        $DB->delete($table, [
+            'OR' => [
+                ['NOT' => ['profiles_id' => new QuerySubQuery(['SELECT' => 'id', 'FROM' => Profile::getTable()])]],
+                ['NOT' => ['entities_id' => new QuerySubQuery(['SELECT' => 'id', 'FROM' => Entity::getTable()])]],
+            ],
+        ]);
     }
 
     /**

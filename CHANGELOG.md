@@ -11,6 +11,8 @@ The cost plugin for GLPI
 - Profile names are displayed as plain text in the entity costs tab.
 - The Costs Tech report only shows the entities the user has access to.
 - Uninstalling the plugin removes all its data.
+- Deleting a profile also removes its rates from the entity costs tab, and rates left behind by profiles deleted earlier can be removed.
+- Deleting an entity also removes its cost settings and rates.
 
 ## [4.0.0] - 2026-01-27
 ## Features

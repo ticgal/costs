@@ -90,5 +90,7 @@ function plugin_init_costs()
     ];
     $PLUGIN_HOOKS[Hooks::ITEM_PURGE]['costs'] = [
         'TicketTask' => ['PluginCostsTask', 'taskPurge'],
+        'Profile' => ['PluginCostsEntityProfile', 'cleanForProfile'],
+        'Entity' => ['PluginCostsEntity', 'cleanForEntity'],
     ];
 }

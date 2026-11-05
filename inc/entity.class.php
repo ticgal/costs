@@ -34,6 +34,8 @@
  * -------------------------------------------------------------------------
  */
 
+use Glpi\DBAL\QuerySubQuery;
+
 class PluginCostsEntity extends CommonDBTM
 {
     public static $rightname = 'entity';
@@ -233,6 +235,19 @@ class PluginCostsEntity extends CommonDBTM
      * @param  Migration $migration
      * @return void
      */
+    /**
+     * Remove the cost settings and per-profile rates of a purged entity (ITEM_PURGE hook)
+     *
+     * @param  Entity $entity
+     * @return void
+     */
+    public static function cleanForEntity(Entity $entity): void
+    {
+        $criteria = ['entities_id' => $entity->getID()];
+        (new self())->deleteByCriteria($criteria, true);
+        (new PluginCostsEntityProfile())->deleteByCriteria($criteria, true);
+    }
+
     public static function install(Migration $migration): void
     {
         /** @var \DBmysql $DB */
@@ -272,6 +287,16 @@ class PluginCostsEntity extends CommonDBTM
             }
         }
         $migration->executeMigration();
+
+        // Settings left behind by entities purged before the ITEM_PURGE hook existed
+        $DB->delete($table, [
+            'NOT' => [
+                'entities_id' => new QuerySubQuery([
+                    'SELECT' => 'id',
+                    'FROM'   => Entity::getTable(),
+                ]),
+            ],
+        ]);
     }
 
     /**

@@ -13,6 +13,7 @@ The cost plugin for GLPI
 - Uninstalling the plugin removes all its data.
 - Deleting a profile also removes its rates from the entity costs tab, and rates left behind by profiles deleted earlier can be removed.
 - Deleting an entity also removes its cost settings and rates.
+- The Billable ticket search criterion offers "is" and "is not" with a Yes/No choice, and is listed under a Costs section.
 
 ## [4.0.0] - 2026-01-27
 ## Features

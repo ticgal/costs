@@ -57,13 +57,19 @@ class PluginCostsTicket extends CommonDBTM
     {
         $opt = [];
 
+        // Section header in the search criteria and column pickers
+        $opt[] = [
+            'id'            => 'costs',
+            'name'          => self::getTypeName(),
+        ];
+
         $opt[] = [
             'id'            => '1000',
             'table'         => self::getTable(),
             'field'         => 'billable',
             'name'          => __("Billable", 'costs'),
             'datatype'      => 'bool',
-            'searchtype'    => 'equals',
+            'searchtype'    => ['equals', 'notequals'],
             'joinparams'    => [
                 'jointype'      => 'child',
             ],

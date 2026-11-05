@@ -92,5 +92,22 @@ Needs the data left by the HTTP battery. Result: **10/10 OK, no JS errors, `php-
 Also found while looking at the screenshots: `locales/en_US.po` translated "Costs" as "costs" (lowercase tab label); fixed and recompiled.
 
 ### Pending
-- [ ] Same batteries with production settings (no `local_define.php`).
+- [x] Same batteries with production settings (done 2026-11-05).
 - [ ] Report with the `reports` plugin installed: totals limited to the active entities (SEV-06).
+
+## 2026-11-05 — fix/security parity + CI suffix
+
+Changes: `autoloader-suffix` `PluginCosts` (shared CI failed with `Costs`); billable rule aligned with
+`fix/security` (central + ticket UPDATE + `canUpdateItem()`, read-only field otherwise); root entity cannot
+inherit; entity Update button only with edit right; dead `deleteOldCosts()` removed.
+
+Environment: GLPI 12.0.0-rc3 (`glpi12rc3`). Batteries run in **strict mode and in production mode**
+(the `local_define.php` of another session no longer existed). Results: HTTP **51/51** in both modes,
+browser **10/10** in both modes, no `php-errors.log` entry from costs. The only entries (25, strict
+browser run) are deprecations from `gappextended/ajax/timer.php` (`inc/includes.php`), not this plugin.
+Static checks (CI suffix check, PHPCS, PHP-CS-Fixer, PHPStan, TwigCS, php -l): clean.
+
+- [x] S3.3 Observer (ticket OWN, no UPDATE) assigned to a ticket in A posts `cost_billable=0` → stays 1 (the first 12 version accepted it through `Ticket::canUpdate()`).
+- [x] S3.4 Same user sees "Billable" read-only (no `cost_billable` input).
+- [x] F3.4 POST `inheritance=1` on the root entity row → unchanged.
+- [x] Production-mode pass of the whole HTTP and browser batteries (previously pending).

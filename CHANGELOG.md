@@ -1,26 +1,28 @@
 # Costs
+<!-- changelog-format: 2 -->
 The cost plugin for GLPI
 
-## [5.0.0-beta.1] - Unreleased
-## Features
-- GLPI 12 compatibility (GLPI 12.0.x only)
-- Classes moved to `src/` (`GlpiPlugin\Costs\*`); the legacy `PluginCosts*` names are kept as deprecated aliases for other plugins
-- Plugin configuration asks for re-authentication, like the core configuration
-## Security
-- Entity cost settings and per-profile costs can only be changed by users with the entity update right on that entity
-- The billable flag can only be set by central users allowed to update tickets
-- Escape profile names and values in the entity costs tab
-- Costs report restricted to the active entities
-## Fixed
-- "Billable" search option on tickets was not registered
-- Bulk delete of per-profile costs in the entity tab ("No selected items")
-- "Costs" tab label shown in lowercase in English (US)
-- Uninstall now removes all the plugin tables
-- Task description copied to the cost comment without HTML double encoding
-- Cost of an updated task uses the profile of the assigned technician
-- PHP warnings when a task is updated without state or without technician
-## Removed
-- Unused QR code dependency
+## [Unreleased]
+_Working version: 5.0.0-beta.1. Includes the security fixes from 4.0.1._
+
+### Features
+- Compatible with GLPI 12.0.
+- The plugin settings ask for your password again before they can be changed, like the GLPI configuration.
+
+### Bugs
+- Only users who can update an entity can change its costs and its per-profile rates.
+- Per-profile rates can only be set for profiles of the standard interface.
+- Only users with the right to update tickets can change whether a ticket is billable.
+- Users who cannot change whether a ticket is billable see it as read-only.
+- Changing the billable setting of a ticket for the first time is no longer lost.
+- Profile names and rates are displayed as plain text in the entity costs tab.
+- The Costs Tech report only shows the entities the user has access to.
+- Uninstalling the plugin removes all its data.
+- Searching tickets by "Billable" works.
+- Deleting several per-profile rates at once works.
+- The task description copied into a cost no longer shows HTML codes such as "&amp;".
+- When a task is reassigned, its cost uses the rates of the new technician's profile.
+- The "Costs" tab is no longer shown in lowercase in English (US).
 
 ## [4.0.0] - 2026-01-27
 ## Features

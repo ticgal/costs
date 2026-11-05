@@ -1,8 +1,8 @@
 /public/vendor
 /vendor
 composer.lock
+# Local-only docs (TICGAL remote): plans, audit reports, testing
 docs/*
-!docs/testing/
-docs/testing/*
-!docs/testing/TESTING-dev.md
-!docs/testing/QA-TESTING.html
+!docs/manual/
+docs/manual/*
+!docs/manual/.bookstack-map.json

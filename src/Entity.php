@@ -124,6 +124,7 @@ class Entity extends CommonDBTM
         if (!$entity->can($ID, READ)) {
             return false;
         }
+        $canedit = $entity->can($ID, UPDATE);
         $cost_config = new self();
         $cost_config->getFromDBByEntity($ID);
         $inheritance = $cost_config->fields['inheritance'];
@@ -192,10 +193,12 @@ class Entity extends CommonDBTM
             $out .= "</td></tr>\n";
         }
 
-        $out .= "<tr><td class='tab_bg_2 right'>";
-        $out .= "<input type='submit' name='plugin_cost_update' value='" . htmlescape(_sx('button', 'Update')) . "' class='btn btn-primary'>";
-        $out .= "<input type='hidden' name='id' value='" . $config_id . "'>";
-        $out .= "</td></tr>";
+        if ($canedit) {
+            $out .= "<tr><td class='tab_bg_2 right'>";
+            $out .= "<input type='submit' name='plugin_cost_update' value='" . htmlescape(_sx('button', 'Update')) . "' class='btn btn-primary'>";
+            $out .= "<input type='hidden' name='id' value='" . $config_id . "'>";
+            $out .= "</td></tr>";
+        }
         $out .= "</table>";
         $out .= Html::closeForm(false);
 
@@ -218,6 +221,10 @@ class Entity extends CommonDBTM
     public function prepareInputForUpdate($input)
     {
         unset($input['entities_id']);
+        // The root entity has no parent to inherit from
+        if ((int) ($this->fields['entities_id'] ?? 0) === 0) {
+            unset($input['inheritance']);
+        }
         foreach (['fixed_cost', 'time_cost'] as $field) {
             if (isset($input[$field])) {
                 $input[$field] = (float) $input[$field];

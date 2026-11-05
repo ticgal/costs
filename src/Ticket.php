@@ -79,29 +79,6 @@ class Ticket extends CommonDBTM
     }
 
     /**
-     * deleteOldCosts
-     *
-     * @param  mixed $ID
-     * @return void
-     */
-    public static function deleteOldCosts($ID): void
-    {
-        /** @var \DBmysql $DB */
-        global $DB;
-
-        $query = [
-            'FROM' => self::getTable(),
-            'WHERE' => [
-                'tickets_id' => $ID,
-            ],
-        ];
-        foreach ($DB->request($query) as $id => $row) {
-            $DB->delete('glpi_ticketcosts', ['id' => $row['costs_id']]);
-            $DB->delete(self::getTable(), ['id' => $row['id']]);
-        }
-    }
-
-    /**
      * isBillable
      *
      * @param  int $ticket_id
@@ -187,6 +164,7 @@ class Ticket extends CommonDBTM
                     $template = "@costs/billable_dropdown.html.twig";
                     $template_options = [
                         'billable' => $billable,
+                        'canedit'  => self::canSetBillable($item),
                     ];
                     TemplateRenderer::getInstance()->display($template, $template_options);
                 }
@@ -202,7 +180,7 @@ class Ticket extends CommonDBTM
      */
     public static function ticketAdd(\Ticket $ticket): void
     {
-        if (array_key_exists('cost_billable', $ticket->input) && self::canSetBillable()) {
+        if (array_key_exists('cost_billable', $ticket->input) && self::canSetBillable($ticket)) {
             $billable = (int) (bool) $ticket->input['cost_billable'];
         } else {
             $cost_config = new Entity();
@@ -225,27 +203,41 @@ class Ticket extends CommonDBTM
      */
     public static function ticketUpdate(\Ticket $ticket): void
     {
-        if (is_array($ticket->input) && array_key_exists('cost_billable', $ticket->input) && self::canSetBillable()) {
-            $cost_ticket = new self();
-            $cost_ticket->getFromDBByTicket($ticket->fields['id']);
-            if (!$cost_ticket->isNewItem()) {
-                $cost_ticket->update([
-                    'billable'  => (int) (bool) $ticket->input['cost_billable'],
-                    'id'        => $cost_ticket->getID(),
-                ]);
-            }
+        if (!is_array($ticket->input) || !array_key_exists('cost_billable', $ticket->input)) {
+            return;
+        }
+
+        // This hook runs before the core filters the input by the user's rights on the ticket
+        $billable = (int) (bool) $ticket->input['cost_billable'];
+        unset($ticket->input['cost_billable']);
+        if (!self::canSetBillable($ticket)) {
+            return;
+        }
+
+        $cost_ticket = new self();
+        $cost_ticket->getFromDBByTicket($ticket->fields['id']);
+        if (!$cost_ticket->isNewItem()) {
+            $cost_ticket->update([
+                'billable'  => $billable,
+                'id'        => $cost_ticket->getID(),
+            ]);
         }
     }
 
     /**
-     * The billable flag is only shown to central users who can update tickets (see postItemForm()):
-     * the same rule applies to the input, so requesters cannot clear it on their own tickets.
+     * Billing is decided by central users with the ticket UPDATE right on that ticket: OWN, ASSIGN or
+     * CHANGEPRIORITY (accepted by Ticket::canUpdate()) are not enough, and requesters never can.
      *
+     * @param  \Ticket $ticket
      * @return bool
      */
-    private static function canSetBillable(): bool
+    public static function canSetBillable(\Ticket $ticket): bool
     {
-        return Session::getCurrentInterface() === 'central' && \Ticket::canUpdate();
+        if (Session::getCurrentInterface() !== 'central' || !Session::haveRight(\Ticket::$rightname, UPDATE)) {
+            return false;
+        }
+
+        return $ticket->isNewItem() || $ticket->canUpdateItem();
     }
 
     /**

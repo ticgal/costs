@@ -34,42 +34,28 @@
  * -------------------------------------------------------------------------
  */
 
+use GlpiPlugin\Costs\Entity;
+
 if (!Plugin::isPluginActive('costs')) {
     throw new \Glpi\Exception\Http\NotFoundHttpException();
 }
 
-Session::checkRight("entity", UPDATE);
+Session::checkRight('entity', UPDATE);
 
-$PluginCostsEntity  = new PluginCostsEntity();
+$cost_config = new Entity();
 
 if (isset($_POST["plugin_cost_update"])) {
-    if (!$PluginCostsEntity->getFromDB((int) ($_POST['id'] ?? 0))) {
-        throw new \Glpi\Exception\Http\NotFoundHttpException();
-    }
-    // Check the entity of the stored row, never the one sent by the client
-    $entities_id = (int) $PluginCostsEntity->fields['entities_id'];
-    if (!Session::haveAccessToEntity($entities_id)) {
-        throw new \Glpi\Exception\Http\AccessDeniedHttpException();
-    }
+    $id = (int) ($_POST['id'] ?? 0);
+    // entity UPDATE right and access to the entity the settings belong to
+    $cost_config->check($id, UPDATE);
 
-    // Only the editable columns; entities_id cannot be changed
-    $input = ['id' => $PluginCostsEntity->getID()];
-    foreach (['fixed_cost', 'time_cost'] as $field) {
+    $input = ['id' => $id];
+    foreach (['fixed_cost', 'time_cost', 'cost_private', 'auto_cost', 'inheritance'] as $field) {
         if (isset($_POST[$field])) {
-            $input[$field] = (float) $_POST[$field];
+            $input[$field] = $_POST[$field];
         }
     }
-    foreach (['cost_private', 'auto_cost', 'inheritance'] as $field) {
-        if (isset($_POST[$field])) {
-            $input[$field] = (int) (bool) $_POST[$field];
-        }
-    }
-    // The root entity has no parent to inherit from
-    if ($entities_id == 0) {
-        unset($input['inheritance']);
-    }
-
-    $PluginCostsEntity->update($input);
+    $cost_config->update($input);
     Html::back();
 }
 

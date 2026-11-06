@@ -2,6 +2,32 @@
 <!-- changelog-format: 2 -->
 The cost plugin for GLPI
 
+## [Unreleased]
+
+## [5.0.0] - 2026-11-05
+_Includes the security fixes from 4.0.1._
+
+### Features
+- Compatible with GLPI 12.0.
+- The plugin settings ask for your password again before they can be changed, like the GLPI configuration.
+
+### Bugs
+- Only users who can update an entity can change its costs and its per-profile rates.
+- Per-profile rates can only be set for profiles of the standard interface.
+- Only users with the right to update tickets can change whether a ticket is billable.
+- Users who cannot change whether a ticket is billable see it as read-only.
+- Changing the billable setting of a ticket for the first time is no longer lost.
+- Profile names and rates are displayed as plain text in the entity costs tab.
+- The Costs Tech report only shows the entities the user has access to.
+- Uninstalling the plugin removes all its data.
+- Searching tickets by "Billable" works.
+- Deleting several per-profile rates at once works.
+- The task description copied into a cost no longer shows HTML codes such as "&amp;".
+- When a task is reassigned, its cost uses the rates of the new technician's profile.
+- The "Costs" tab is no longer shown in lowercase in English (US).
+- Deleting a profile also removes its rates from the entity costs tab, and rates left behind by profiles deleted earlier can be removed.
+- Deleting an entity also removes its cost settings and rates.
+
 ## [4.0.1]
 ### Bugs
 - Only users who can update an entity can change its costs and its per-profile rates.

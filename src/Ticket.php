@@ -1,0 +1,334 @@
+<?php
+
+/**
+ * -------------------------------------------------------------------------
+ * Costs plugin for GLPI
+ * Copyright (C) 2018 - 2026 by the TICGAL Team.
+ *
+ * https://github.com/ticgal/costs
+ * -------------------------------------------------------------------------
+ * LICENSE
+ *
+ * This file is part of the Costs plugin.
+ *
+ * Costs plugin is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Costs plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Costs. If not, see <http://www.gnu.org/licenses/>.
+ * -------------------------------------------------------------------------
+ * @package   Costs
+ * @author    the TICGAL team
+ * @copyright Copyright (C) 2018 - 2026 TICGAL team
+ * @license   AGPL License 3.0 or (at your option) any later version
+ *             http://www.gnu.org/licenses/agpl-3.0-standalone.html
+ * @link      https://tic.gal
+ * @since     2018
+ * -------------------------------------------------------------------------
+ */
+
+namespace GlpiPlugin\Costs;
+
+use CommonDBTM;
+use DBConnection;
+use Glpi\Application\View\TemplateRenderer;
+use Migration;
+use Session;
+
+class Ticket extends CommonDBTM
+{
+    public static string $rightname = 'ticket';
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function getTypeName($nb = 0): string
+    {
+        return __('Costs', 'costs');
+    }
+
+    /**
+     * rawSearchOptionsToAdd
+     *
+     * @return array
+     */
+    public static function rawSearchOptionsToAdd(): array
+    {
+        $opt = [];
+
+        // Section header in the search criteria and column pickers
+        $opt[] = [
+            'id'            => 'costs',
+            'name'          => self::getTypeName(),
+        ];
+
+        $opt[] = [
+            'id'            => '1000',
+            'table'         => self::getTable(),
+            'field'         => 'billable',
+            'name'          => __("Billable", 'costs'),
+            'datatype'      => 'bool',
+            'searchtype'    => ['equals', 'notequals'],
+            'joinparams'    => [
+                'jointype'      => 'child',
+            ],
+        ];
+
+        return $opt;
+    }
+
+    /**
+     * isBillable
+     *
+     * @param  int $ticket_id
+     * @return bool
+     */
+    public static function isBillable(int $ticket_id): bool
+    {
+        $cost_ticket = new self();
+        $cost_ticket->getFromDBByTicket($ticket_id);
+        return (bool) ($cost_ticket->fields['billable'] ?? false);
+    }
+
+    /**
+     * getFromDBByTicket
+     *
+     * @param  int $ticket_id
+     * @return bool
+     */
+    public function getFromDBByTicket(int $ticket_id): bool
+    {
+        /** @var \DBmysql $DB */
+        global $DB;
+
+        $req = $DB->request(['FROM' => self::getTable(),'WHERE' => ['tickets_id' => $ticket_id]]);
+        if (count($req)) {
+            foreach ($req as $result) {
+                $this->fields = $result;
+            }
+            return true;
+        } else {
+            $ticket = new \Ticket();
+            if (!$ticket->getFromDB($ticket_id)) {
+                $this->fields = ['billable' => 0];
+                return false;
+            }
+            $cost_config = new Entity();
+            $cost_config->getFromDBByEntity($ticket->fields['entities_id']);
+            if ($cost_config->fields['inheritance']) {
+                $parent_id = Entity::getConfigID($ticket->fields['entities_id']);
+                $cost_config->getFromDB($parent_id);
+            }
+            $DB->insert(self::getTable(), [
+                'tickets_id'    => $ticket_id,
+                'billable'      => $cost_config->fields['auto_cost'],
+            ]);
+            $this->getFromDBByCrit(['tickets_id' => $ticket_id]);
+            return false;
+        }
+    }
+
+    /**
+     * postItemForm
+     *
+     * @param  mixed $params
+     * @return void
+     */
+    public static function postItemForm($params = []): void
+    {
+        $interface = Session::getCurrentInterface();
+        if ($interface && $interface != "helpdesk") {
+            $item = $params['item'] ?? null;
+            if (!$item) {
+                return;
+            }
+
+            if ($item->getType() == \Ticket::getType()) {
+                if ($item->canUpdate()) {
+                    $ticket_id = $item->getID();
+                    if ($item->isNewItem()) {
+                        $cost_config = new Entity();
+                        $cost_config->getFromDBByEntity((int) $item->fields['entities_id']);
+                        if ($cost_config->fields['inheritance']) {
+                            $parent_id = Entity::getConfigID((int) $item->fields['entities_id']);
+                            $cost_config->getFromDB($parent_id);
+                        }
+                        $billable = $cost_config->fields['auto_cost'];
+                    } else {
+                        $cost_ticket = new self();
+                        $cost_ticket->getFromDBByTicket($ticket_id);
+                        $billable = $cost_ticket->fields['billable'];
+                    }
+
+                    $template = "@costs/billable_dropdown.html.twig";
+                    $template_options = [
+                        'billable' => $billable,
+                        'canedit'  => self::canSetBillable($item),
+                    ];
+                    TemplateRenderer::getInstance()->display($template, $template_options);
+                }
+            }
+        }
+    }
+
+    /**
+     * ticketAdd
+     *
+     * @param  \Ticket $ticket
+     * @return void
+     */
+    public static function ticketAdd(\Ticket $ticket): void
+    {
+        if (array_key_exists('cost_billable', $ticket->input) && self::canSetBillable($ticket)) {
+            $billable = (int) (bool) $ticket->input['cost_billable'];
+        } else {
+            $cost_config = new Entity();
+            $cost_config->getFromDBByEntity((int) $ticket->fields['entities_id']);
+            if ($cost_config->fields['inheritance']) {
+                $parent_id = Entity::getConfigID((int) $ticket->fields['entities_id']);
+                $cost_config->getFromDB($parent_id);
+            }
+            $billable = $cost_config->fields['auto_cost'];
+        }
+        $cost_ticket = new self();
+        $cost_ticket->add(['tickets_id' => $ticket->fields['id'],'billable' => $billable]);
+    }
+
+    /**
+     * ticketUpdate
+     *
+     * @param  \Ticket $ticket
+     * @return void
+     */
+    public static function ticketUpdate(\Ticket $ticket): void
+    {
+        if (!is_array($ticket->input) || !array_key_exists('cost_billable', $ticket->input)) {
+            return;
+        }
+
+        // This hook runs before the core filters the input by the user's rights on the ticket
+        $billable = (int) (bool) $ticket->input['cost_billable'];
+        unset($ticket->input['cost_billable']);
+        if (!self::canSetBillable($ticket)) {
+            return;
+        }
+
+        $cost_ticket = new self();
+        $cost_ticket->getFromDBByTicket($ticket->fields['id']);
+        if (!$cost_ticket->isNewItem()) {
+            $cost_ticket->update([
+                'billable'  => $billable,
+                'id'        => $cost_ticket->getID(),
+            ]);
+        }
+    }
+
+    /**
+     * Billing is decided by central users with the ticket UPDATE right on that ticket: OWN, ASSIGN or
+     * CHANGEPRIORITY (accepted by Ticket::canUpdate()) are not enough, and requesters never can.
+     *
+     * @param  \Ticket $ticket
+     * @return bool
+     */
+    public static function canSetBillable(\Ticket $ticket): bool
+    {
+        if (Session::getCurrentInterface() !== 'central' || !Session::haveRight(\Ticket::$rightname, UPDATE)) {
+            return false;
+        }
+
+        return $ticket->isNewItem() || $ticket->canUpdateItem();
+    }
+
+    /**
+     * install
+     *
+     * @param  Migration $migration
+     * @return void
+     */
+    public static function install(Migration $migration): void
+    {
+        /** @var \DBmysql $DB */
+        global $DB;
+
+        $default_charset = DBConnection::getDefaultCharset();
+        $default_collation = DBConnection::getDefaultCollation();
+        $default_key_sign = DBConnection::getDefaultPrimaryKeySignOption();
+
+        $table = self::getTable();
+
+        if (!$DB->tableExists($table)) {
+            $migration->displayMessage("Installing $table");
+
+            $query = "CREATE TABLE IF NOT EXISTS `$table` (
+                `id` int {$default_key_sign} NOT NULL auto_increment,
+                `tickets_id` int {$default_key_sign} NOT NULL,
+                `billable` tinyint NOT NULL DEFAULT '0',
+                PRIMARY KEY (`id`),
+                KEY `tickets_id` (`tickets_id`),
+                KEY `billable` (`billable`)
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            $DB->doQuery($query);
+        } else {
+            if ($DB->fieldExists($table, 'costs_id')) {
+                if (!$DB->tableExists('glpi_plugin_costs_tasks')) {
+                    Task::install($migration);
+                }
+                $query = [
+                    'SELECT' => [
+                        $table . ".costs_id",
+                        "glpi_ticketcosts.name",
+                    ],
+                    'FROM' => $table,
+                    'INNER JOIN' => [
+                        'glpi_ticketcosts' => [
+                            'FKEY' => [
+                                'glpi_ticketcosts'  => 'id',
+                                $table              => 'costs_id',
+                            ],
+                        ],
+                    ],
+                ];
+                $taskcost = new Task();
+                foreach ($DB->request($query) as $id => $row) {
+                    $arr = explode("_", $row['name']);
+                    $task_id = $arr[0];
+                    $input = [
+                        'tasks_id' => $task_id,
+                        'costs_id' => $row['costs_id'],
+                    ];
+                    $taskcost->add($input);
+                }
+
+                $migration->addField($table, 'billable', 'boolean');
+                $migration->addKey($table, 'billable');
+
+                $migration->dropField($table, 'costs_id');
+                $migration->dropKey($table, 'costs_id');
+
+                $clear_data = "TRUNCATE TABLE $table";
+                $DB->doQuery($clear_data);
+            }
+        }
+        $migration->executeMigration();
+    }
+
+    /**
+     * uninstall
+     *
+     * @param  Migration $migration
+     * @return void
+     */
+    public static function uninstall(Migration $migration): void
+    {
+        $table = self::getTable();
+        $migration->displayMessage("Uninstalling $table");
+        $migration->dropTable($table);
+    }
+}

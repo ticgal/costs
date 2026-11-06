@@ -3,28 +3,28 @@ parameters:
         maximumNumberOfProcesses: 2
     level: 5
     bootstrapFiles:
-        - ../../stubs/glpi_constants.php
         - ../../vendor/autoload.php
+        - vendor/autoload.php
     paths:
+        - front
         - inc
+        - report
+        - src
         - hook.php
         - setup.php
-        - tools/phpstan/rules
     excludePaths:
         - '**/vendor/*'
         - '**/tests/*'
         - '**/tools/*'
     scanDirectories:
-        - ../../inc
         - ../../src
         - tools/phpstan/rules
-    stubFiles:
-        - ../../stubs/glpi_constants.php
     ignoreErrors:
-        - '/(Instantiated class|Class) (GlpiPlugin(\\\w+)+|Plugin\w+) not found/'
-        - '/Call to (static )?method \w+\(\) on an unknown class (GlpiPlugin(\\\w+)+|Plugin\w+)/'
-        - '/Access to (property \$\w+|constant \w+) on an unknown class (GlpiPlugin(\\\w+)+|Plugin\w+)/'
-        - '/PHPDoc tag \@var for variable \$\w+ contains unknown class (GlpiPlugin(\\\w+)+|Plugin\w+)/'
+        # Reports are built on top of the optional "reports" plugin (checked at runtime)
+        -
+            message: '#(Instantiated class|unknown class) PluginReports\w+#'
+            paths:
+                - report/coststech/coststech.php
     reportUnmatchedIgnoredErrors: false
 rules:
     - GlpiProject\Tools\PHPStan\Rules\GlobalVarTypeRule

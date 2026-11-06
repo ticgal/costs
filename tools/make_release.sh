@@ -142,6 +142,8 @@ FILES_TO_DELETE=(
     "tools"
     "tests"
     "phpunit"
+    # development documentation (findings, plans, testing records)
+    "docs"
     # CI/CD config files
     ".php-cs-fixer.php"
     ".phpcs.xml"

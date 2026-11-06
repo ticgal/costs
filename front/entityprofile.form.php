@@ -35,39 +35,25 @@
  */
 
 use Glpi\Event;
+use GlpiPlugin\Costs\EntityProfile;
 
 if (!Plugin::isPluginActive('costs')) {
     throw new \Glpi\Exception\Http\NotFoundHttpException();
 }
 
-Session::checkRight("entity", UPDATE);
+Session::checkRight('entity', UPDATE);
 
-$entity_profile = new PluginCostsEntityProfile();
+$entity_profile = new EntityProfile();
 if (isset($_POST["add"])) {
-    $entities_id = (int) ($_POST['entities_id'] ?? -1);
-    $profile     = new Profile();
-    // Costs only apply to central profiles
-    if (
-        !Session::haveAccessToEntity($entities_id)
-        || !$profile->getFromDB((int) ($_POST['profiles_id'] ?? 0))
-        || $profile->fields['interface'] !== 'central'
-    ) {
-        throw new \Glpi\Exception\Http\AccessDeniedHttpException();
-    }
-
-    $input = [
-        'entities_id' => $entities_id,
-        'profiles_id' => $profile->getID(),
-        'fixed_cost'  => (float) ($_POST['fixed_cost'] ?? 0),
-        'time_cost'   => (float) ($_POST['time_cost'] ?? 0),
-    ];
-    if ($entity_profile->add($input)) {
+    // entity UPDATE right and access to the target entity
+    $entity_profile->check(-1, CREATE, $_POST);
+    if ($entity_profile->add($_POST)) {
         Event::log(
-            $entities_id,
+            (int) $_POST['entities_id'],
             'entity',
             4,
             "tracking",
-            sprintf(__('link with %1$s'), $profile->getFriendlyName()),
+            sprintf(__('link with %1$s'), Profile::getFriendlyNameById((int) $_POST["profiles_id"])),
         );
     }
     Html::back();

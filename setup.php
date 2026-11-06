@@ -40,7 +40,7 @@ use GlpiPlugin\Costs\Entity as CostsEntity;
 use GlpiPlugin\Costs\Task as CostsTask;
 use GlpiPlugin\Costs\Ticket as CostsTicket;
 
-define('PLUGIN_COSTS_VERSION', '5.0.0-beta.1');
+define('PLUGIN_COSTS_VERSION', '5.0.0');
 // Minimal GLPI version, inclusive
 define("PLUGIN_COSTS_MIN_GLPI", "12.0.0");
 // Maximum GLPI version, exclusive

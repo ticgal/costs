@@ -3,7 +3,9 @@
 The cost plugin for GLPI
 
 ## [Unreleased]
-_Working version: 5.0.0-beta.1. Includes the security fixes from 4.0.1._
+
+## [5.0.0] - 2026-11-05
+_Includes the security fixes from 4.0.1._
 
 ### Features
 - Compatible with GLPI 12.0.

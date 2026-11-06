@@ -1,5 +1,19 @@
 # Costs
+<!-- changelog-format: 2 -->
 The cost plugin for GLPI
+
+## [4.0.1]
+### Bugs
+- Only users who can update an entity can change its costs and its per-profile rates.
+- Per-profile rates can only be set for profiles of the standard interface.
+- Only users with the right to update tickets can change whether a ticket is billable.
+- Changing the billable setting of a ticket for the first time is no longer lost.
+- Profile names are displayed as plain text in the entity costs tab.
+- The Costs Tech report only shows the entities the user has access to.
+- Uninstalling the plugin removes all its data.
+- Deleting a profile also removes its rates from the entity costs tab, and rates left behind by profiles deleted earlier can be removed.
+- Deleting an entity also removes its cost settings and rates.
+- The Billable ticket search criterion offers "is" and "is not" with a Yes/No choice, and is listed under a Costs section.
 
 ## [4.0.0] - 2026-01-27
 ## Features

@@ -36,7 +36,7 @@
 
 use Glpi\Plugin\Hooks;
 
-define('PLUGIN_COSTS_VERSION', '4.0.0');
+define('PLUGIN_COSTS_VERSION', '4.0.1');
 // Minimal GLPI version, inclusive
 define("PLUGIN_COSTS_MIN_GLPI", "11.0");
 // Maximum GLPI version, exclusive
@@ -90,5 +90,7 @@ function plugin_init_costs()
     ];
     $PLUGIN_HOOKS[Hooks::ITEM_PURGE]['costs'] = [
         'TicketTask' => ['PluginCostsTask', 'taskPurge'],
+        'Profile' => ['PluginCostsEntityProfile', 'cleanForProfile'],
+        'Entity' => ['PluginCostsEntity', 'cleanForEntity'],
     ];
 }

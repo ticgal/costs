@@ -57,13 +57,19 @@ class PluginCostsTicket extends CommonDBTM
     {
         $opt = [];
 
+        // Section header in the search criteria and column pickers
+        $opt[] = [
+            'id'            => 'costs',
+            'name'          => self::getTypeName(),
+        ];
+
         $opt[] = [
             'id'            => '1000',
             'table'         => self::getTable(),
             'field'         => 'billable',
             'name'          => __("Billable", 'costs'),
             'datatype'      => 'bool',
-            'searchtype'    => 'equals',
+            'searchtype'    => ['equals', 'notequals'],
             'joinparams'    => [
                 'jointype'      => 'child',
             ],
@@ -111,8 +117,10 @@ class PluginCostsTicket extends CommonDBTM
     /**
      * getFromDBByTicket
      *
+     * Creates the row with the entity default when it does not exist yet
+     *
      * @param  int $ticket_id
-     * @return bool
+     * @return bool false when the row had to be created
      */
     public function getFromDBByTicket(int $ticket_id): bool
     {
@@ -138,9 +146,27 @@ class PluginCostsTicket extends CommonDBTM
                 'tickets_id'    => $ticket_id,
                 'billable'      => $cost_config->fields['auto_cost'],
             ]);
-            $this->fields = ['billable' => $cost_config->fields['auto_cost']];
+            // Load the new row so callers get its id
+            if (!$this->getFromDB($DB->insertId())) {
+                $this->fields = ['billable' => $cost_config->fields['auto_cost']];
+            }
             return false;
         }
+    }
+
+    /**
+     * Only users with ticket UPDATE can set the billable flag of a ticket they can update
+     *
+     * @param  Ticket $ticket
+     * @return bool
+     */
+    public static function canSetBillable(Ticket $ticket): bool
+    {
+        if (!Session::haveRight(Ticket::$rightname, UPDATE)) {
+            return false;
+        }
+
+        return $ticket->isNewItem() || $ticket->canUpdateItem();
     }
 
     /**
@@ -179,6 +205,7 @@ class PluginCostsTicket extends CommonDBTM
                     $template = "@costs/billable_dropdown.html.twig";
                     $template_options = [
                         'billable' => $billable,
+                        'canedit'  => self::canSetBillable($item),
                     ];
                     TemplateRenderer::getInstance()->display($template, $template_options);
                 }
@@ -194,8 +221,8 @@ class PluginCostsTicket extends CommonDBTM
      */
     public static function ticketAdd(Ticket $ticket): void
     {
-        if (array_key_exists('cost_billable', $ticket->input)) {
-            $billable = $ticket->input['cost_billable'];
+        if (array_key_exists('cost_billable', $ticket->input) && self::canSetBillable($ticket)) {
+            $billable = (int) (bool) $ticket->input['cost_billable'];
         } else {
             $cost_config = new PluginCostsEntity();
             $cost_config->getFromDBByEntity($ticket->input['entities_id']);
@@ -217,14 +244,24 @@ class PluginCostsTicket extends CommonDBTM
      */
     public static function ticketUpdate(Ticket $ticket): void
     {
-        if (is_array($ticket->input) && array_key_exists('cost_billable', $ticket->input)) {
-            $cost_ticket = new self();
-            if ($cost_ticket->getFromDBByTicket($ticket->fields['id'])) {
-                $cost_ticket->update([
-                    'billable'  => $ticket->input['cost_billable'],
-                    'id'        => $cost_ticket->getID(),
-                ]);
-            }
+        if (!is_array($ticket->input) || !array_key_exists('cost_billable', $ticket->input)) {
+            return;
+        }
+
+        // This hook runs before the core filters the input by the user's rights on the ticket
+        $billable = (int) (bool) $ticket->input['cost_billable'];
+        unset($ticket->input['cost_billable']);
+        if (!self::canSetBillable($ticket)) {
+            return;
+        }
+
+        $cost_ticket = new self();
+        $cost_ticket->getFromDBByTicket($ticket->fields['id']);
+        if (!$cost_ticket->isNewItem()) {
+            $cost_ticket->update([
+                'billable'  => $billable,
+                'id'        => $cost_ticket->getID(),
+            ]);
         }
     }
 
@@ -299,5 +336,18 @@ class PluginCostsTicket extends CommonDBTM
             }
         }
         $migration->executeMigration();
+    }
+
+    /**
+     * uninstall
+     *
+     * @param  Migration $migration
+     * @return void
+     */
+    public static function uninstall(Migration $migration): void
+    {
+        $table = self::getTable();
+        $migration->displayMessage("Uninstalling $table");
+        $migration->dropTable($table);
     }
 }

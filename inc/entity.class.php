@@ -34,6 +34,8 @@
  * -------------------------------------------------------------------------
  */
 
+use Glpi\DBAL\QuerySubQuery;
+
 class PluginCostsEntity extends CommonDBTM
 {
     public static $rightname = 'entity';
@@ -115,6 +117,7 @@ class PluginCostsEntity extends CommonDBTM
         if (!$entity->can($ID, READ)) {
             return false;
         }
+        $canedit = Session::haveRight('entity', UPDATE) && $entity->canUpdateItem();
         $cost_config = new self();
         $cost_config->getFromDBByEntity($ID);
         $inheritance = $cost_config->fields['inheritance'];
@@ -180,10 +183,12 @@ class PluginCostsEntity extends CommonDBTM
         $out .= "<input type='hidden' name='entities_id' value='$ID'>";
         $out .= "</td></tr>\n";
 
-        $out .= "<tr><td class='tab_bg_2 right'>";
-        $out .= "<input type='submit' name='plugin_cost_update' value='" . _sx('button', 'Update') . "' class='submit'>";
-        $out .= "<input type='hidden' name='id' value='" . $config_id . "'>";
-        $out .= "</td></tr>";
+        if ($canedit) {
+            $out .= "<tr><td class='tab_bg_2 right'>";
+            $out .= "<input type='submit' name='plugin_cost_update' value='" . _sx('button', 'Update') . "' class='submit'>";
+            $out .= "<input type='hidden' name='id' value='" . $config_id . "'>";
+            $out .= "</td></tr>";
+        }
         $out .= "</table>";
         $out .= Html::closeForm(false);
 
@@ -230,6 +235,19 @@ class PluginCostsEntity extends CommonDBTM
      * @param  Migration $migration
      * @return void
      */
+    /**
+     * Remove the cost settings and per-profile rates of a purged entity (ITEM_PURGE hook)
+     *
+     * @param  Entity $entity
+     * @return void
+     */
+    public static function cleanForEntity(Entity $entity): void
+    {
+        $criteria = ['entities_id' => $entity->getID()];
+        (new self())->deleteByCriteria($criteria, true);
+        (new PluginCostsEntityProfile())->deleteByCriteria($criteria, true);
+    }
+
     public static function install(Migration $migration): void
     {
         /** @var \DBmysql $DB */
@@ -269,15 +287,25 @@ class PluginCostsEntity extends CommonDBTM
             }
         }
         $migration->executeMigration();
+
+        // Settings left behind by entities purged before the ITEM_PURGE hook existed
+        $DB->delete($table, [
+            'NOT' => [
+                'entities_id' => new QuerySubQuery([
+                    'SELECT' => 'id',
+                    'FROM'   => Entity::getTable(),
+                ]),
+            ],
+        ]);
     }
 
     /**
-     * unistall
+     * uninstall
      *
      * @param  Migration $migration
      * @return void
      */
-    public static function unistall(Migration $migration): void
+    public static function uninstall(Migration $migration): void
     {
         $table = self::getTable();
         $migration->displayMessage("Uninstalling $table");

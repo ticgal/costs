@@ -40,6 +40,7 @@ use CommonDBTM;
 use CommonGLPI;
 use DBConnection;
 use Dropdown;
+use Glpi\DBAL\QuerySubQuery;
 use Html;
 use Migration;
 
@@ -266,6 +267,19 @@ class Entity extends CommonDBTM
     }
 
     /**
+     * Remove the cost settings and per-profile rates of a purged entity (ITEM_PURGE hook)
+     *
+     * @param  \Entity $entity
+     * @return void
+     */
+    public static function cleanForEntity(\Entity $entity): void
+    {
+        $criteria = ['entities_id' => $entity->getID()];
+        (new self())->deleteByCriteria($criteria, true);
+        (new EntityProfile())->deleteByCriteria($criteria, true);
+    }
+
+    /**
      * install
      *
      * @param  Migration $migration
@@ -310,6 +324,16 @@ class Entity extends CommonDBTM
             }
         }
         $migration->executeMigration();
+
+        // Settings left behind by entities purged before the ITEM_PURGE hook existed
+        $DB->delete($table, [
+            'NOT' => [
+                'entities_id' => new QuerySubQuery([
+                    'SELECT' => 'id',
+                    'FROM'   => \Entity::getTable(),
+                ]),
+            ],
+        ]);
     }
 
     /**

@@ -177,13 +177,7 @@ fi
 
 cd ..
 
-if [ "$PUBLIC_RELEASE" = 1 ]; then
-    echo "Creating public release"
-    PACKAGE_NAME="glpi-$PLUGINNAME-$RELEASE"
-else
-    echo "Creating private release"
-    PACKAGE_NAME="$PLUGINNAME-$RELEASE"
-fi
+PACKAGE_NAME="glpi-$PLUGINNAME-$RELEASE"
 tar cjf "$PACKAGE_NAME.tar.bz2" $PLUGINNAME
 
 cd $INIT_PWD

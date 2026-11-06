@@ -37,6 +37,7 @@
 use Glpi\Plugin\Hooks;
 use GlpiPlugin\Costs\Config as CostsConfig;
 use GlpiPlugin\Costs\Entity as CostsEntity;
+use GlpiPlugin\Costs\EntityProfile;
 use GlpiPlugin\Costs\Task as CostsTask;
 use GlpiPlugin\Costs\Ticket as CostsTicket;
 
@@ -104,5 +105,7 @@ function plugin_init_costs(): void
     ];
     $PLUGIN_HOOKS[Hooks::ITEM_PURGE]['costs'] = [
         TicketTask::class => [CostsTask::class, 'taskPurge'],
+        Profile::class    => [EntityProfile::class, 'cleanForProfile'],
+        Entity::class     => [CostsEntity::class, 'cleanForEntity'],
     ];
 }
